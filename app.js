@@ -103,7 +103,8 @@
   PY.run = async code => {
     let out = '';
     PY.py.setStdout({ batched: s => out += s + '\n' });
-    PY.py.setStderr({ batched: s => out += s + '\n' });
+    PY.py.setStderr({ batched: () => {} });
+    if (!PY.warnOff) { await PY.py.runPythonAsync('import warnings\nwarnings.filterwarnings("ignore")'); PY.warnOff = true; }
     try { if (/^\s*(import|from)\s+(numpy|pandas)/m.test(code)) await PY.py.loadPackagesFromImports(code); await PY.py.runPythonAsync(code); return { out }; }
     catch (e) { const m = String(e.message || e).split('\n').filter(Boolean); return { out, err: m.slice(-3).join('\n') }; }
   };
