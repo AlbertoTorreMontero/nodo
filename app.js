@@ -116,8 +116,7 @@
       h('button', { class: 'logo', onclick: () => go('') , 'aria-label': 'Inicio' },
         h('span', { html: '<svg viewBox="0 0 32 32"><circle cx="8" cy="22" r="5" fill="var(--sql)"/><circle cx="24" cy="22" r="5" fill="var(--rust)"/><circle cx="16" cy="9" r="5" fill="var(--ia)"/><path d="M8 22L16 9l8 13" stroke="var(--ink)" stroke-width="2" fill="none" opacity=".35"/></svg>' }), 'nodo'),
       h('div', { class: 'spacer' }),
-      h('span', { class: 'pill', title: 'Días seguidos aprendiendo', html: ICON.flame + streak() }),
-      h('span', { class: 'pill', title: 'Puntos de experiencia', html: ICON.bolt + S.xp + ' XP' })));
+      h('span', { class: 'pill', title: 'Días seguidos aprendiendo', html: ICON.flame + streak() + (streak() === 1 ? ' día' : ' días') })));
   }
 
   function home() {
@@ -190,6 +189,7 @@
   function lessonView(found) {
     const { c, l } = found;
     setColor(c);
+    if (l.format === 'explore' && window.EXPLORE) { S.last = l.id; save(); return window.EXPLORE(found); }
     S.last = l.id; save();
     L = { c, l, i: 0, correct: 0, graded: 0, xp: 0, first: true };
     app.replaceChildren(h('div', { class: 'lesson' },
@@ -421,6 +421,7 @@
         nx ? h('button', { class: 'btn', onclick: () => go(nx.id) }, 'Siguiente: ' + nx.title) : null)));
   }
 
+  window.NODO = { S, save, today, streak, setColor, allLessons, findLesson, kbd: (ta, k) => kbd(ta, k), SQLK: () => SQLK, PYK: () => PYK, codeBlock: (b, c, f) => codeBlock(b, c, f), PY };
   /* ---------- Router (hash simple) ---------- */
   function go(id) { if (location.hash.slice(1) === id) route(); else location.hash = id; }
   window.go = go;
