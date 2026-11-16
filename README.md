@@ -1,13 +1,13 @@
 # Nodo · aprende haciendo
 
-App de aprendizaje interactiva al estilo Brilliant con cuatro rutas:
+App de aprendizaje interactiva al estilo Brilliant, organizada como **build-your-own-x**: cada ruta construye su propia tecnología desde cero. Las lecciones son explicaciones explorables: poco texto, una pregunta para predecir antes de ver, figuras que se tocan y una sección final "Construye tu propia X" que se ejecuta en la propia página.
 
-- **SQL de verdad** (14 lecciones): consultas reales ejecutadas en el navegador (sql.js) sobre la BD de F1 de los ejercicios de la asignatura de Bases de Datos, transacciones, índices y triggers.
-- **IA de cero a multimodal** (16): neurona, descenso de gradiente, redes, CNN, embeddings, atención, audio y el proyecto **Prisma** (imagen + audio + texto).
-- **Rust para portfolio** (15): ownership y borrowing visualizados y 4 proyectos (rgrep, f1-api, pulse, chip8).
-- **Python rápido y profesional** (12): ejercicios con Python real (Pyodide), pandas, CLI y API con FastAPI.
+- **Construye tu propia base de datos** (SQL, 9 lecciones): máquina de consultas por etapas sobre la BD de F1, y en JavaScript tu propio LIKE, nested loop y hash join, GROUP BY con Map, búsqueda de índice y log de deshacer. Termina con el reto del boletín.
+- **Construye tu propia IA** (14): neurona, red XOR, micrograd, convolución, BPE, atención y Fourier en Python puro (Pyodide); después el proyecto **Prisma** (imagen + audio + texto) con Hugging Face y Gradio.
+- **Construye tu propio Redis en Rust** (11): ownership y borrowing visualizados; proyectos rgrep, mini-redis (tokio, protocolo RESP, SET/GET con caducidad) y emulador CHIP-8. Código compilado y con tests.
+- **Construye tu propio lenguaje en Python** (11): lexer, AST con dataclasses, parser recursivo descendente, errores e intérprete con variables; pandas y FastAPI.
 
-Pensada sobre todo para móvil: instalable como app (PWA), funciona sin conexión tras la primera visita, barra de atajos para escribir SQL/Python en el teclado del móvil.
+Pensada para móvil: instalable (PWA), funciona sin conexión tras la primera visita y tiene barra de atajos para escribir código.
 
 ## Ejecutar en local
 
@@ -28,7 +28,9 @@ Render (Static Site) con `render.yaml`: publish directory `.`, sin build command
 |---|---|
 | `index.html` | Estilos y carga de scripts |
 | `app.js` | Motor de lecciones, corrección, progreso (localStorage), router |
-| `widgets.js` | Bloques interactivos (neurona, gradiente, convolución, atención, memoria Rust/Python, transacciones, índices…) |
+| `explore.js` | Reproductor de lecciones explorables y figuras (máquina de consultas, laboratorios JS/Python, neurona…) |
+| `widgets.js` | Figuras visuales (gradiente, convolución, atención, memoria Rust/Python, transacciones, índices…) |
+| `code-library.js` | Código de proyectos y ejercicios (todo probado) |
 | `data-db.js` | Bases de datos de práctica (F1 y Películas) |
 | `course-*.js` | Contenido de cada ruta |
 | `sw.js`, `manifest.webmanifest` | PWA y modo offline |

@@ -66,7 +66,7 @@
 .qm-st .bd .ltab{max-height:200px}
 .qm-arrow{height:14px;display:flex;justify-content:center;margin:-6px 0}
 .qm-arrow::after{content:"";width:2px;height:100%;background:var(--line)}
-.xp-ed textarea{width:100%;min-height:96px;resize:vertical;font:15px/1.55 var(--mono);background:var(--surface2);color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:12px 14px;outline:none}
+.xp-ed textarea{width:100%;min-height:96px;resize:vertical;white-space:pre;overflow-wrap:normal;overflow-x:auto;font:15px/1.55 var(--mono);background:var(--surface2);color:var(--ink);border:2px solid var(--line);border-radius:14px;padding:12px 14px;outline:none}
 .xp-ed textarea:focus{border-color:var(--c)}
 .xp-err{color:var(--bad);font:13px var(--mono);background:var(--bad-bg);padding:9px 12px;border-radius:10px;margin-top:8px;white-space:pre-wrap}
 /* neurona */
@@ -111,46 +111,62 @@
       if (s.n !== false) sec.append(h('div', { class: 'n' }, s.n || `${i + 1} de ${secs.length}`));
       if (s.h) sec.append(h('h2', {}, s.h));
       if (s.text) sec.append(h('div', { class: 'txt', html: s.text }));
+      (s.blocks || (s.code ? [{ file: s.file, code: s.code }] : [])).forEach(b => { if (b.text) sec.append(h('div', { class: 'txt', html: b.text })); if (b.code) N.codeBlock(sec, b.code, b.file); });
+      if (s.after) sec.append(h('div', { class: 'txt', html: s.after }));
       body.append(sec);
       const next = h('div', { class: 'xp-next' });
+      sec.append(next);
+      let ended = false;
       const goOn = () => {
         next.replaceChildren();
         if (i + 1 < secs.length) { show(i + 1); setTimeout(() => body.lastChild.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60); }
         else finish();
       };
-      const btn = (label) => next.replaceChildren(h('button', { class: 'btn', onclick: goOn }, label || (i + 1 < secs.length ? 'Seguir' : 'Terminar lección')));
-      const aha = () => { if (s.aha) sec.insertBefore(h('div', { class: 'xp-aha', html: '<b>La idea</b>' + s.aha }), next); };
-      // figura
+      const end = () => {
+        if (ended) return; ended = true;
+        if (s.aha) sec.insertBefore(h('div', { class: 'xp-aha', html: '<b>La idea</b>' + s.aha }), next);
+        next.replaceChildren(h('button', { class: 'btn', onclick: goOn }, i + 1 < secs.length ? 'Seguir' : 'Terminar lección'));
+      };
+      window.__xpEnd = end;
       const mountFig = () => {
-        if (!s.fig) return null;
         const fig = h('div', { class: 'xp-fig w' }); sec.insertBefore(fig, next);
         let tryEl = null;
         if (s.try) { tryEl = h('div', { class: 'xp-try' }, h('span', { class: 'ic' }), h('div', { html: s.try })); fig.after(tryEl); }
         let solved = false;
-        E[s.fig](fig, s.o || {}, { done: () => { if (solved) return; solved = true; tryEl && tryEl.classList.add('done'); aha(); btn(); } });
+        E[s.fig](fig, s.o || {}, { done: () => { if (solved) return; solved = true; tryEl && tryEl.classList.add('done'); if (!s.checks) end(); } });
         if (s.cap) fig.append(h('div', { class: 'cap', html: s.cap }));
-        return fig;
       };
-      sec.append(next);
+      const mountChecks = () => {
+        const cs = s.checks.map(() => h('input', { type: 'checkbox' }));
+        const box = h('div', { class: 'checks' }, s.checks.map((t, k) => h('label', {}, cs[k], h('span', { html: t }))));
+        sec.insertBefore(box, next);
+        const st = h('div', { class: 'status', style: 'text-align:center;width:100%' }, 'Marca cada hito cuando lo tengas hecho en tu ordenador');
+        next.replaceChildren(st);
+        const upd2 = () => { if (cs.every(x => x.checked)) end(); };
+        cs.forEach(x => x.addEventListener('change', upd2));
+      };
+      const reveal = () => {
+        if (s.fig) mountFig();
+        if (s.checks) mountChecks();
+        else if (!(s.fig && s.try)) end();
+      };
       if (s.predict) {
         const p = s.predict; const box = h('div', { class: 'xp-pred' }, h('div', { class: 'qq', html: p.q }));
         const bs = p.opts.map((o, k) => h('button', { html: o, onclick: () => {
           if (box.classList.contains('locked')) return;
           box.classList.add('locked'); bs[k].classList.add('pick');
-          sec.insertBefore(h('div', { class: 'xp-aha', html: '<b>' + (k === p.a ? 'Bien pensado' : 'Interesante intuición') + '</b>' + p.why }), next);
-          if (s.fig) mountFig(); if (!s.try) { aha(); btn(); }
+          sec.insertBefore(h('div', { class: 'xp-aha', html: '<b>' + (k === p.a ? 'Bien pensado' : 'Lo que pasa en realidad') + '</b>' + (k === p.a ? '' : 'La respuesta es: <i>' + p.opts[p.a] + '</i>. ') + p.why }), next);
+          reveal();
         } }));
         box.append(...bs); sec.insertBefore(box, next);
-      } else if (s.fig) { mountFig(); if (!s.try) { aha(); btn(); } }
-      else if (s.code) { window.NODO.codeBlock(sec, s.code, s.file); sec.append(next); aha(); btn(); }
-      else { aha(); btn(); }
+      } else reveal();
     }
     function finish() {
       N.S.done[l.id] = true; if (!N.S.days.includes(N.today())) N.S.days.push(N.today()); N.save();
       prog.style.width = '100%';
       const ls = N.allLessons(c); const nx = ls.slice(ls.findIndex(x => x.id === l.id) + 1).find(x => !N.S.done[x.id]);
       body.append(h('section', { class: 'xp-sec' },
-        h('div', { class: 'n' }, 'Lección terminada'), h('h2', {}, 'Lo que ahora entiendes'),
+        h('div', { class: 'n' }, 'Lección terminada'), h('h2', {}, l.keysTitle || 'Lo que ahora entiendes'),
         h('div', { class: 'xp-key' }, h('ul', {}, (l.keys || []).map(k => h('li', { html: k })))),
         h('div', { class: 'xp-next', style: 'gap:10px;flex-wrap:wrap' },
           h('button', { class: 'btn ghost', onclick: () => go(c.id) }, 'Volver a la ruta'),
@@ -194,37 +210,46 @@
     draw();
   };
 
+  /* botón "Ver una solución" que aparece tras unos intentos */
+  const solBtn = (onUse, after = 3) => { const b = h('button', { class: 'btn ghost sm', style: 'display:none' }, 'Ver una solución'); let n = 0; b.onclick = onUse; b.tick = () => { if (++n >= after) b.style.display = ''; }; setTimeout(() => b.style.display = '', 60000); return b; };
+
   /* SQL · Máquina de consultas: ejecuta por etapas y enseña cada tabla intermedia */
   E.qmachine = async (fig, o, api) => {
     await ready(fig);
     const ta = h('textarea', { spellcheck: 'false', autocapitalize: 'off', autocorrect: 'off', 'aria-label': 'Consulta SQL' }); ta.value = o.start || '';
     const err = h('div'); const st = h('div', { class: 'qm-stages' });
-    fig.replaceChildren(h('div', { class: 'xp-ed' }, window.NODO.kbd(ta, window.NODO.SQLK()), ta), err, st);
+    const sb = o.goal ? solBtn(() => { ta.value = o.goal; run(); }) : null;
+    fig.replaceChildren(h('div', { class: 'xp-ed' }, window.NODO.kbd(ta, window.NODO.SQLK()), ta), sb ? h('div', { style: 'margin-top:6px' }, sb) : '', err, st);
     let open = o.open ?? 4, timer;
-    ta.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 350); });
+    ta.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { sb && sb.tick(); run(); }, 450); });
     function parse(sql) {
-      const s = sql.replace(/;\s*$/, '').replace(/\s+/g, ' ').trim();
-      const m = s.match(/^SELECT (.+?) FROM (.+?)(?: WHERE (.+?))?(?: ORDER BY (.+?))?(?: LIMIT (\d+))?$/i);
-      return m && { sel: m[1], from: m[2], where: m[3], order: m[4], limit: m[5] };
+      const s = sql.replace(/--.*$/gm, '').replace(/;\s*$/, '').replace(/\s+/g, ' ').trim();
+      const m = s.match(/^SELECT (.+?) FROM (.+?)(?: WHERE (.+?))?(?: GROUP BY (.+?))?(?: HAVING (.+?))?(?: ORDER BY (.+?))?(?: LIMIT (\d+))?$/i);
+      return m && { sel: m[1], from: m[2], where: m[3], group: m[4], having: m[5], order: m[6], limit: m[7] };
     }
     function run() {
       const p = parse(ta.value);
-      if (!p) { err.replaceChildren(h('div', { class: 'xp-err' }, 'La máquina entiende: SELECT … FROM … [WHERE …] [ORDER BY …] [LIMIT n]')); return; }
+      if (!p) { err.replaceChildren(h('div', { class: 'xp-err' }, 'La máquina entiende: SELECT … FROM … [WHERE …] [GROUP BY …] [HAVING …] [ORDER BY …] [LIMIT n]')); st.replaceChildren(); return; }
+      const W = p.where ? ` WHERE ${p.where}` : '', G = p.group ? ` GROUP BY ${p.group}` : '', HV = p.having ? ` HAVING ${p.having}` : '', O = p.order ? ` ORDER BY ${p.order}` : '', Lm = p.limit ? ` LIMIT ${p.limit}` : '';
       const stages = [
         { k: 'FROM', d: p.from, sql: `SELECT * FROM ${p.from}` },
-        { k: 'WHERE', d: p.where || '(sin filtro)', sql: `SELECT * FROM ${p.from}` + (p.where ? ` WHERE ${p.where}` : ''), skip: !p.where },
-        { k: 'SELECT', d: p.sel, sql: `SELECT ${p.sel} FROM ${p.from}` + (p.where ? ` WHERE ${p.where}` : ''), cols: true },
-        { k: 'ORDER BY', d: p.order || '(orden sin garantizar)', sql: `SELECT ${p.sel} FROM ${p.from}` + (p.where ? ` WHERE ${p.where}` : '') + (p.order ? ` ORDER BY ${p.order}` : ''), skip: !p.order },
-        { k: 'LIMIT', d: p.limit || '(todas)', sql: `SELECT ${p.sel} FROM ${p.from}` + (p.where ? ` WHERE ${p.where}` : '') + (p.order ? ` ORDER BY ${p.order}` : '') + (p.limit ? ` LIMIT ${p.limit}` : ''), skip: !p.limit }
-      ];
+        { k: 'WHERE', d: p.where || '(sin filtro)', sql: `SELECT * FROM ${p.from}${W}`, skip: !p.where }];
+      if (p.group) {
+        stages.push({ k: 'GROUP BY', d: p.group, sql: `SELECT ${p.group}, COUNT(*) AS filas_del_grupo FROM ${p.from}${W}${G}` });
+        stages.push({ k: 'HAVING', d: p.having || '(todos los grupos)', sql: `SELECT ${p.group}, COUNT(*) AS filas_del_grupo FROM ${p.from}${W}${G}${HV}`, skip: !p.having });
+      }
+      stages.push({ k: 'SELECT', d: p.sel, sql: `SELECT ${p.sel} FROM ${p.from}${W}${G}${HV}` },
+        { k: 'ORDER BY', d: p.order || '(orden sin garantizar)', sql: `SELECT ${p.sel} FROM ${p.from}${W}${G}${HV}${O}`, skip: !p.order },
+        { k: 'LIMIT', d: p.limit || '(todas)', sql: `SELECT ${p.sel} FROM ${p.from}${W}${G}${HV}${O}${Lm}`, skip: !p.limit });
       const res = []; let e = null;
       for (const s of stages) { try { res.push(q1(s.sql)); } catch (x) { e = `Falla en la etapa ${s.k}: ${x.message}`; break; } }
       err.replaceChildren(e ? h('div', { class: 'xp-err' }, e) : '');
+      const op = open === 'last' ? res.length - 1 : open;
       st.replaceChildren(...res.flatMap((r, i) => {
         const s = stages[i];
         const card = h('div', { class: 'qm-st' + (s.skip ? ' skip' : '') },
-          h('div', { class: 'hd', onclick: () => { open = open === i ? -1 : i; run(); } }, h('span', { class: 'k' }, (i + 1) + ' · ' + s.k), h('span', { class: 'd' }, s.d), h('span', { class: 'c' }, `${r.values.length} × ${r.columns.length}`)),
-          open === i ? h('div', { class: 'bd' }, ltab(r.columns, r.values.slice(0, 40))) : null);
+          h('div', { class: 'hd', onclick: () => { open = op === i ? -1 : i; run(); } }, h('span', { class: 'k' }, (i + 1) + ' · ' + s.k), h('span', { class: 'd' }, s.d), h('span', { class: 'c' }, `${r.values.length} × ${r.columns.length}`)),
+          op === i ? h('div', { class: 'bd' }, ltab(r.columns, r.values.slice(0, 40))) : null);
         return i ? [h('div', { class: 'qm-arrow' }), card] : [card];
       }));
       if (!e && o.goal) { try { const exp = q1(o.goal); const got = res[res.length - 1]; if (got && SQLE.same([got], [exp], !!o.ordered).ok) api.done(); } catch (x) {} }
@@ -232,25 +257,50 @@
     run();
   };
 
-  /* JS · Tu mini motor de consultas: el alumno escribe filter/map/sort */
-  E.minidb = async (fig, o, api) => {
+  /* SQL · consola viva (cualquier sentencia, también DDL/DML/triggers/EXPLAIN) */
+  E.sqllive = async (fig, o, api) => {
     await ready(fig);
-    const data = q1('SELECT forename, surname, nationality, dob FROM drivers').values.map(([forename, surname, nationality, dob]) => ({ forename, surname, nationality, dob }));
-    const ta = h('textarea', { spellcheck: 'false', autocapitalize: 'off', autocorrect: 'off', 'aria-label': 'Código JavaScript' }); ta.value = o.start;
+    const db = o.db || 'f1'; const sch = db === 'f1' ? window.F1_SCHEMA : window.FILMS_SCHEMA;
+    const ta = h('textarea', { spellcheck: 'false', autocapitalize: 'off', autocorrect: 'off', 'aria-label': 'SQL' }); ta.value = o.start || '';
     const out = h('div', { style: 'margin-top:10px' });
-    fig.replaceChildren(h('div', { class: 'xp-ed' }, h('div', { class: 'status', style: 'margin-bottom:6px' }, 'JavaScript · se ejecuta mientras escribes · `drivers` es un array de 18 objetos'), ta), out);
-    let timer; ta.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(run, 400); });
+    const sb = o.goal ? solBtn(() => { ta.value = o.goal; run(); }) : null;
+    const chips = h('div', { class: 'schema' }, Object.entries(o.tables ? Object.fromEntries(o.tables.map(t => [t, sch[t]])) : sch).map(([t, c]) => h('span', { html: `<b>${t}</b>(${c})` })));
+    fig.replaceChildren(chips, h('div', { class: 'xp-ed' }, window.NODO.kbd(ta, window.NODO.SQLK()), ta), sb ? h('div', { style: 'margin-top:6px' }, sb) : '', out);
+    let timer; ta.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { sb && sb.tick(); run(); }, 500); });
+    function exec(sql) { return SQLE.run(db, o.verify ? sql + ';\n' + o.verify : sql, o.pre); }
+    function run() {
+      const r = exec(ta.value);
+      if (r.err) { out.replaceChildren(h('div', { class: 'xp-err' }, r.err)); return; }
+      const t = r.r[r.r.length - 1];
+      out.replaceChildren(o.verify ? h('div', { class: 'status', style: 'margin-bottom:6px' }, 'Comprobación: ' + o.verify.split(';').filter(x => x.trim()).pop().trim()) : '', t ? ltab(t.columns, t.values.slice(0, 60)) : h('div', { class: 'status' }, 'Hecho (sin filas que mostrar).'));
+      if (o.goal) { const ref = exec(o.goal); if (!ref.err && SQLE.same(r.r, ref.r, !!o.ordered).ok) api.done(); }
+    }
+    run();
+  };
+
+  /* JS · laboratorio: construyes una pieza del motor con JavaScript */
+  E.jslab = async (fig, o, api) => {
+    const data = {};
+    if (o.sql) { await ready(fig); for (const [k, q] of Object.entries(o.sql)) { const t = q1(q); data[k] = t.values.map(r => Object.fromEntries(t.columns.map((c, j) => [c, r[j]]))); } }
+    Object.assign(data, o.data || {});
+    const ta = h('textarea', { spellcheck: 'false', autocapitalize: 'off', autocorrect: 'off', 'aria-label': 'Código JavaScript', style: 'min-height:' + (o.rows || 9) * 1.55 + 'em' }); ta.value = o.start;
+    const out = h('div', { style: 'margin-top:10px' });
+    const sb = o.sol ? solBtn(() => { ta.value = o.sol; run(); }) : null;
+    fig.replaceChildren(h('div', { class: 'xp-ed' }, h('div', { class: 'status', style: 'margin-bottom:6px' }, o.label || 'JavaScript · se ejecuta mientras escribes'), ta), sb ? h('div', { style: 'margin-top:6px' }, sb) : '', out);
+    let timer; ta.addEventListener('input', () => { clearTimeout(timer); timer = setTimeout(() => { sb && sb.tick(); run(); }, 450); });
+    ta.addEventListener('keydown', e => { if (e.key === 'Tab') { e.preventDefault(); const s = ta.selectionStart; ta.setRangeText('  ', s, ta.selectionEnd, 'end'); } });
     function run() {
       try {
-        const r = new Function('drivers', ta.value + '\n;return consulta(drivers);')(JSON.parse(JSON.stringify(data)));
-        if (!Array.isArray(r)) throw new Error('consulta() debe devolver un array');
-        const cols = r.length ? Object.keys(r[0]) : [];
-        out.replaceChildren(h('div', { class: 'status', style: 'margin-bottom:6px' }, `${r.length} fila(s)`), ltab(cols, r.map(x => cols.map(k => x[k]))));
-        if (o.check(r)) api.done();
+        const names = Object.keys(data);
+        const r = new Function(...names, ta.value + '\n;return (' + o.call + ');')(...names.map(k => JSON.parse(JSON.stringify(data[k]))));
+        if (Array.isArray(r) && r.length && typeof r[0] === 'object' && r[0] !== null && !Array.isArray(r[0])) { const cols = Object.keys(r[0]); out.replaceChildren(h('div', { class: 'status', style: 'margin-bottom:6px' }, `${r.length} fila(s)`), ltab(cols, r.slice(0, 60).map(x => cols.map(k => typeof x[k] === 'object' ? JSON.stringify(x[k]) : x[k])))); }
+        else out.replaceChildren(h('pre', { class: 'code', style: 'margin:0;white-space:pre-wrap' }, typeof r === 'string' ? r : JSON.stringify(r)));
+        if (o.check(r, data)) api.done();
       } catch (e) { out.replaceChildren(h('div', { class: 'xp-err' }, String(e.message || e))); }
     }
     run();
   };
+  E.minidb = (fig, o, api) => E.jslab(fig, Object.assign({ sql: { drivers: 'SELECT forename, surname, nationality, dob FROM drivers' }, call: 'consulta(drivers)', label: 'JavaScript · se ejecuta mientras escribes · `drivers` es un array de 18 objetos' }, o), api);
 
   /* IA · Una neurona que decide */
   E.decide = (fig, o, api) => {
@@ -312,12 +362,14 @@
     const ta = h('textarea', { spellcheck: 'false', autocapitalize: 'off', autocorrect: 'off', 'aria-label': 'Código Python' }); ta.value = o.start;
     const con = h('div', { class: 'console', style: 'margin-top:10px' }, '▸ Cargando Python…');
     const runB = h('button', { class: 'btn sm', onclick: run }, 'Ejecutar');
-    fig.append(h('div', { class: 'xp-ed' }, window.NODO.kbd(ta, window.NODO.PYK()), ta), h('div', { style: 'display:flex;gap:8px;margin-top:8px' }, runB), con);
+    const sb = o.sol ? solBtn(() => { ta.value = o.sol; }, 2) : null;
+    ta.style.minHeight = (o.rows || 10) * 1.55 + 'em';
+    fig.append(h('div', { class: 'xp-ed' }, window.NODO.kbd(ta, window.NODO.PYK()), ta), h('div', { style: 'display:flex;gap:8px;margin-top:8px' }, runB, sb || ''), con);
     ta.addEventListener('keydown', e => { if (e.key === 'Tab') { e.preventDefault(); const s = ta.selectionStart; ta.setRangeText('    ', s, ta.selectionEnd, 'end'); } if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') run(); });
     PY.load().then(ok => con.textContent = ok ? '▸ Python listo. Pulsa Ejecutar.' : 'No se pudo cargar Python aquí. Lee el código y sigue.');
     async function run() {
       if (!(await PY.load())) { api.done(); return; }
-      con.textContent = 'Ejecutando…'; const r = await PY.run(ta.value);
+      sb && sb.tick(); con.textContent = 'Ejecutando…'; const r = await PY.run(ta.value);
       con.textContent = (r.out || '') + (r.err ? '\n' + r.err : '') || '(sin salida)';
       if (!r.err && new RegExp(o.expect).test((r.out || '').trim())) api.done();
     }

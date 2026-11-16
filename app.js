@@ -133,9 +133,9 @@
     }
     app.replaceChildren(topbar(), h('main', { class: 'wrap' },
       h('section', { class: 'hero' },
-        h('div', {}, h('h1', {}, 'Aprende haciendo, un paso cada vez.'),
-          h('p', {}, 'Cuatro rutas con problemas interactivos, visualizaciones que puedes tocar y proyectos reales. Primero intentas, luego entiendes por qué.')),
-        resume || h('div', { class: 'resume' }, h('div', { class: 'dot', html: ICON.star }), h('div', {}, h('small', {}, 'Empieza por aquí'), h('b', {}, 'SQL · Tu primera consulta')), h('button', { class: 'btn sm', onclick: () => go('sql-1') }, 'Empezar'))),
+        h('div', {}, h('h1', {}, 'Entiende cómo funciona. Después, constrúyelo.'),
+          h('p', {}, 'Cuatro rutas al estilo build-your-own-x: tu propia base de datos, tu propia IA, tu propio Redis en Rust y tu propio lenguaje en Python. Cada lección explica una idea con figuras que tocas y termina construyendo esa pieza.')),
+        resume || h('div', { class: 'resume' }, h('div', { class: 'dot', html: ICON.star }), h('div', {}, h('small', {}, 'Empieza por aquí'), h('b', {}, 'SQL · La máquina de consultas')), h('button', { class: 'btn sm', onclick: () => go('sql-1') }, 'Empezar'))),
       h('section', { class: 'courses' }, C().map(c => {
         const p = pct(c), n = allLessons(c).length;
         const cv = h('canvas', { width: 600, height: 260, 'aria-hidden': 'true' });
@@ -147,10 +147,10 @@
             h('div', { class: 'meta' }, h('span', {}, `${n} lecciones`), h('span', {}, p + '%'))));
       })),
       h('section', { class: 'method' },
-        h('div', {}, h('b', {}, 'Problema primero'), 'Cada idea empieza con algo que resolver, no con teoría.'),
-        h('div', {}, h('b', {}, 'Visual y manipulable'), 'Deslizadores, tablas vivas y memoria que se ve.'),
-        h('div', {}, h('b', {}, 'Feedback inmediato'), 'Sabes al momento si vas bien y por qué.'),
-        h('div', {}, h('b', {}, 'Proyecto continuo'), 'Cada curso construye algo que puedes enseñar.'))));
+        h('div', {}, h('b', {}, 'Predice antes de ver'), 'Cada idea empieza con una pregunta para pensar, no con teoría.'),
+        h('div', {}, h('b', {}, 'Figuras que se tocan'), 'Tablas vivas, memoria que se ve y redes que entrenas.'),
+        h('div', {}, h('b', {}, 'Construye tu propia X'), 'Cada lección termina escribiendo esa pieza tú mismo.'),
+        h('div', {}, h('b', {}, 'Proyectos de verdad'), 'Un motor SQL, Prisma, un Redis y un lenguaje para tu portfolio.'))));
   }
 
   function courseView(c) {

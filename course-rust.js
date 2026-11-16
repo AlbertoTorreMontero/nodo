@@ -1,272 +1,76 @@
-(window.COURSES = window.COURSES || []).push({
-  id: 'rust', color: 'rust', tag: 'Sistemas · Portfolio', title: 'Rust para portfolio',
-  tagline: 'Propiedad y préstamos explicados con la memoria a la vista, y cuatro proyectos que demuestran que sabes Rust.',
-  desc: 'Primero el modelo mental (ownership, borrowing, lifetimes) con visualizaciones de pila y montón. Después, proyectos de portfolio con tests, CI y publicación: la prueba que de verdad convence a un entrevistador.',
-  time: '≈ 5 h de lecciones + 4 proyectos',
-  builds: ['<b>rgrep</b>: un grep en CLI con clap, errores con anyhow y tests', '<b>f1-api</b>: API REST con axum + sqlx sobre la BD de F1 del curso de SQL', '<b>pulse</b>: comprobador concurrente de URLs con tokio', '<b>chip8</b>: emulador CHIP-8 que corre en el navegador con WebAssembly', 'CI en GitHub Actions (fmt, clippy, test) y un crate publicado'],
-  cert: 'No existe un título oficial individual de Rust: la Rust Foundation acredita a <i>formadores</i> (programa RFTT, junio 2026), no a personas. Validación real = examen final de esta ruta + 4 repos con CI en verde + un crate en crates.io. Si quieres un certificado externo, Ardan Labs ofrece un examen supervisado de Rust (100 preguntas, 90 min).',
-  certDone: 'Ruta completada. Pon los 4 repos fijados en tu GitHub con README, CI y capturas. Ese conjunto vale más que cualquier diploma.',
-  sources: ['<i>The Rust Programming Language</i> ("el libro") y <i>Rust by Example</i>', 'Rustlings y la pista de Rust de Exercism (práctica con feedback)', '<i>Command Line Applications in Rust</i>, tutorial de Tokio, documentación de axum y sqlx', 'Rust Foundation Trusted Training (RFTT, 2026) · examen de Rust de Ardan Labs'],
-  units: [
-    { title: 'El modelo mental', desc: 'Propiedad, préstamos y lifetimes', lessons: [
-      { id: 'rs-1', title: 'Variables, tipos y mutabilidad', steps: [
-        { t: 'learn', k: 'Empieza aquí', h: 'Rust te obliga a decir lo que quieres', body: '<p>Rust da velocidad de C++ sin recolector de basura y sin fallos de memoria. El precio: el compilador comprueba tus intenciones. Primera regla: <b>todo es inmutable por defecto</b>.</p><pre class="code">let x = 5;        // inmutable\nlet mut y = 5;    // mutable\ny += 1;\nlet z: u8 = 255;  // tipos explícitos cuando hace falta</pre><div class="note">Instala con <code>rustup</code> (rustup.rs) y crea proyectos con <code>cargo new nombre</code>.</div>' },
-        { t: 'clickline', q: '¿Qué línea no compila?', code: 'fn main() {\n    let puntos = 10;\n    let mut vidas = 3;\n    vidas -= 1;\n    puntos += 5;\n    println!("{puntos} {vidas}");\n}', a: 4, why: 'error[E0384]: cannot assign twice to immutable variable `puntos`. Solución: <code>let mut puntos</code>.' },
-        { t: 'mcq', q: '¿Qué pasa con <code>let n: u8 = 255; let m = n + 1;</code> en modo debug?', opts: ['m vale 256', 'Pánico por desbordamiento (overflow)', 'm vale 0 sin avisar', 'No compila nunca'], a: 1, why: 'En debug, el desbordamiento entero provoca pánico. En release se envuelve. Si lo quieres explícito: <code>wrapping_add</code>, <code>checked_add</code>, <code>saturating_add</code>.' },
-        { t: 'fill', q: 'Shadowing: redeclara <code>texto</code> como número.', code: 'let texto = "42";\n[[0]] texto: i32 = texto.parse().unwrap();', blanks: [['let']], why: 'Con <code>let</code> creas una variable nueva con el mismo nombre (incluso de otro tipo). No es mutabilidad.' },
-        { t: 'mcq', q: 'En Rust, <code>if</code> es una expresión. ¿Qué vale <code>let a = if 3 &gt; 2 { "sí" } else { "no" };</code>?', opts: ['"sí"', '"no"', 'No compila', '()'], a: 0, why: 'Casi todo es una expresión: bloques, if, match. La última expresión sin <code>;</code> es el valor.' }
+(function () {
+  const C = window.CODE;
+  (window.COURSES = window.COURSES || []).push({
+    id: 'rust', color: 'rust', tag: 'Sistemas · Portfolio', title: 'Construye tu propio Redis en Rust',
+    tagline: 'Entiende propiedad y préstamos con la memoria a la vista, y construye grep, Redis y un emulador CHIP-8.',
+    desc: 'Tres proyectos de la lista de build-your-own-x, en Rust. Cada pieza se entiende primero aquí, con figuras y con una versión en JavaScript que puedes ejecutar en la página (el protocolo de Redis, el decodificador de CHIP-8), y después la escribes en Rust en tu ordenador. Todo el código está compilado y probado con tests.',
+    time: '≈ 4 h de lecciones + 3 proyectos',
+    builds: ['<b>rgrep</b>: un grep en línea de comandos con clap, anyhow y tests', '<b>mini-redis</b>: servidor TCP asíncrono con tokio que habla el protocolo real de Redis (PING, ECHO, SET con caducidad, GET)', '<b>chip8</b>: emulador de una consola de 1977, con tests por instrucción, jugable en el navegador con WebAssembly', 'CI en GitHub Actions (fmt, clippy, test) en los tres repos'],
+    cert: 'No existe un título oficial individual de Rust: la Rust Foundation acredita a <i>formadores</i>, no a personas. La validación real son estos tres repos con CI en verde y un README que explique las decisiones. Si quieres un certificado externo, Ardan Labs ofrece un examen supervisado.',
+    certDone: 'Ruta completada. Fija los tres repos en tu perfil de GitHub. Un Redis propio que funciona con un cliente real es de lo que más se valora en entrevistas de sistemas.',
+    sources: ['<i>build-your-own-x</i>: "Build your own Redis" y "Build your own Emulator"', 'CodeCrafters, reto "Build your own Redis" · <i>mini-redis</i> del equipo de Tokio', '<i>The Rust Programming Language</i> y tutorial de Tokio', 'Cowgod\'s Chip-8 Technical Reference', 'Especificación del protocolo RESP de Redis'],
+    units: [
+      { title: 'El modelo mental', desc: 'Lo que hace distinto a Rust', lessons: [
+        { id: 'rs-1', format: 'explore', title: 'Primeros pasos', sub: 'Instalar, compilar y pensar en Rust', keys: ['Todo es inmutable por defecto: <code>let</code> frente a <code>let mut</code>.', 'Casi todo es una expresión: <code>if</code>, <code>match</code> y los bloques devuelven valores.', 'El compilador es estricto para que los errores salgan al compilar y no al ejecutar.', '<code>cargo new</code>, <code>cargo run</code>, <code>cargo test</code>: no necesitas más para empezar.'], sections: [
+          { n: 'Empieza aquí', h: 'Por qué Rust', text: '<p>Rust da la velocidad de C y C++ sin recolector de basura y sin los fallos de memoria típicos de esos lenguajes. Lo consigue comprobando al compilar cosas que otros lenguajes dejan para la ejecución. Al principio el compilador parece pesado; después se convierte en tu mejor compañero de equipo.</p>', blocks: [{ file: 'terminal', code: '# instala con rustup (rustup.rs) y luego:\ncargo new hola\ncd hola\ncargo run' }, { file: 'src/main.rs', code: 'fn main() {\n    let nombre = "Alberto";       // inmutable\n    let mut vueltas = 0;          // mutable\n    vueltas += 1;\n    let estado = if vueltas > 0 { "en pista" } else { "en boxes" };\n    println!("{nombre}: {estado} ({vueltas} vuelta)");\n}' }], checks: ['He instalado Rust con rustup', '<code>cargo run</code> imprime el mensaje'] },
+          { h: 'Inmutable por defecto', predict: { q: 'En Java, una variable se puede reasignar salvo que sea <code>final</code>. En Rust, ¿compila <code>let puntos = 10; puntos += 5;</code>?', opts: ['Sí', 'No: hace falta <code>let mut puntos</code>', 'Compila con un aviso'], a: 1, why: 'Rust invierte el valor por defecto: lo normal es no cambiar las cosas, y cuando algo cambia lo marcas con <code>mut</code>. Así, leyendo el código, sabes qué puede cambiar.' } },
+          { h: 'Desbordamientos', predict: { q: '¿Qué pasa con <code>let n: u8 = 255; let m = n + 1;</code> en modo debug?', opts: ['m vale 256', 'Pánico por desbordamiento', 'm vale 0 sin avisar'], a: 1, why: 'En debug, el desbordamiento entero es un pánico. Si quieres otro comportamiento lo dices: <code>wrapping_add</code>, <code>checked_add</code>, <code>saturating_add</code> u <code>overflowing_add</code> (la usarás en el emulador).' } }
+        ] },
+        { id: 'rs-2', format: 'explore', title: 'Ownership: cada valor tiene un dueño', sub: 'La idea central de Rust', keys: ['Cada valor tiene un único dueño; al salir de ámbito, se libera.', 'Asignar o pasar a una función <b>mueve</b> la propiedad (salvo tipos <code>Copy</code> como los enteros).', 'Un move copia el puntero, no los datos: barato y seguro.', '<code>clone()</code> copia también los datos, y es explícito porque cuesta.'], sections: [
+          { n: 'Empieza aquí', h: 'Tres reglas', text: '<ol><li>Cada valor tiene un único <b>dueño</b>.</li><li>Cuando el dueño sale de ámbito, el valor se libera.</li><li>Asignar o pasar a una función <b>mueve</b> la propiedad.</li></ol><p>Avanza línea a línea y mira la memoria.</p>', fig: 'trace', o: C.traces.own, try: 'Avanza hasta la última línea.', aha: 'Si <code>s1</code> y <code>s2</code> apuntaran al mismo texto y las dos lo liberaran al terminar, liberarías la misma memoria dos veces (un "double free"). Rust lo impide invalidando <code>s1</code>.' },
+          { h: 'Si de verdad quieres dos copias', predict: { q: '¿Cómo arreglas el error si necesitas las dos variables?', opts: ['<code>let s2 = s1.clone();</code>', '<code>let s2 = *s1;</code>', 'No se puede'], a: 0, why: '<code>clone()</code> copia también los datos del montón. Rust nunca hace copias caras a escondidas: si cuesta, lo ves escrito.' } },
+          { h: 'Moverse a una función', text: '<pre class="code">fn saluda(nombre: String) { println!("Hola, {nombre}"); }\n\nlet n = String::from("Alberto");\nsaluda(n);\nsaluda(n);</pre>', predict: { q: '¿Compila?', opts: ['Sí', 'No: la primera llamada mueve <code>n</code> dentro de la función, que lo libera al terminar', 'Solo con <code>mut</code>'], a: 1, why: 'La solución idiomática es <b>prestar</b> en vez de regalar: <code>fn saluda(nombre: &amp;str)</code> y <code>saluda(&amp;n)</code>. Es la siguiente lección.' } }
+        ] },
+        { id: 'rs-3', format: 'explore', title: 'Borrowing: prestar sin regalar', sub: 'El borrow checker', keys: ['<code>&amp;T</code> presta para leer; <code>&amp;mut T</code> presta para modificar.', 'En cada momento: muchas referencias compartidas <b>o</b> una exclusiva, nunca ambas.', 'Un préstamo termina en su último uso, no al final del bloque.', 'Así Rust elimina los data races y los punteros colgantes al compilar.'], sections: [
+          { n: 'Empieza aquí', h: 'Muchos lectores o un escritor', text: '<p>Una referencia te deja usar un valor sin quedártelo. La regla del <b>borrow checker</b>: en cada momento puedes tener muchas referencias de lectura <b>o</b> una de escritura.</p>', fig: 'trace', o: C.traces.borrow, try: 'Avanza hasta el final y fíjate en el paso del <code>push</code>.', aha: '<code>push</code> puede mover el vector a otra zona de memoria. Si quedara una referencia de lectura viva, apuntaría a memoria liberada. Rust no te deja llegar a esa situación.' },
+          { h: 'Encuentra el error', text: '<pre class="code">let mut v = vec![10, 20, 30];\nlet primero = &amp;v[0];\nv.push(40);\nprintln!("{primero}");</pre>', predict: { q: '¿Qué línea da <code>error[E0502]</code>?', opts: ['La 2: <code>let primero = &amp;v[0];</code>', 'La 3: <code>v.push(40);</code>', 'La 4: <code>println!</code>'], a: 1, why: '<code>primero</code> sigue vivo (se usa en la línea 4) cuando <code>push</code> pide un préstamo exclusivo. Si mueves el <code>println!</code> antes del <code>push</code>, compila.' } },
+          { h: 'Por qué merece la pena', predict: { q: '¿Qué tipo de fallo clásico de C/C++ eliminan estas reglas antes de ejecutar?', opts: ['Bucles infinitos', 'Data races y punteros colgantes (use-after-free)', 'Errores de lógica'], a: 1, why: 'Más o menos el 70 % de las vulnerabilidades graves de Chrome y Windows son de este tipo. Rust las convierte en errores de compilación.' } }
+        ] },
+        { id: 'rs-4', format: 'explore', title: 'Tipos que modelan el problema', sub: 'enum, match, Option, Result, lifetimes', keys: ['Los enums de Rust llevan datos: modelan estados posibles y hacen imposibles los inválidos.', '<code>match</code> es exhaustivo: si añades una variante, el compilador te dice dónde falta.', 'No hay null ni excepciones: <code>Option</code> y <code>Result</code>, y <code>?</code> para propagar.', 'Un lifetime dice cuánto vive una referencia; casi siempre se infiere.'], sections: [
+          { n: 'Empieza aquí', h: 'Los comandos de tu Redis', text: '<p>Tu Redis recibirá comandos. En Java usarías un String y muchos <code>if</code>. En Rust, un enum describe exactamente qué comandos existen y qué datos lleva cada uno:</p>', code: 'enum Comando {\n    Ping,\n    Echo(String),\n    Set { clave: String, valor: String, caduca_ms: Option<u64> },\n    Get(String),\n}\n\nfn ejecutar(c: Comando) -> String {\n    match c {\n        Comando::Ping => "+PONG\\r\\n".into(),\n        Comando::Echo(t) => format!("${}\\r\\n{}\\r\\n", t.len(), t),\n        Comando::Set { clave, .. } => format!("guardo {clave}"),\n        Comando::Get(clave) => format!("busco {clave}"),\n    }\n}', file: 'idea', predict: { q: 'Añades <code>Comando::Del(String)</code> y no tocas el <code>match</code>. ¿Qué pasa?', opts: ['Se ignora al ejecutar', 'Error de compilación: el <code>match</code> no cubre todos los casos', 'Pánico en ejecución'], a: 1, why: 'La exhaustividad es una red de seguridad enorme: al añadir un caso, el compilador te lleva a cada sitio que debes actualizar.' } },
+          { h: 'Sin null y sin excepciones', text: '<p><code>Option&lt;T&gt;</code> es <code>Some(valor)</code> o <code>None</code>. <code>Result&lt;T, E&gt;</code> es <code>Ok(valor)</code> o <code>Err(error)</code>. El operador <code>?</code> desenvuelve el Ok o devuelve el error a quien te llamó.</p>', code: 'fn leer_puerto(ruta: &str) -> Result<u16, Box<dyn std::error::Error>> {\n    let texto = std::fs::read_to_string(ruta)?;   // si falla, sale con el error\n    let puerto: u16 = texto.trim().parse()?;\n    Ok(puerto)\n}', file: 'ejemplo', predict: { q: '¿Cuándo es aceptable <code>.unwrap()</code>?', opts: ['Siempre, es más corto', 'En prototipos, tests, o cuando un fallo sería un bug imposible (mejor <code>.expect("motivo")</code>)', 'Nunca'], a: 1, why: 'En un servidor como tu Redis, un <code>unwrap</code> sobre datos del cliente tumbaría la conexión. Ahí se propaga con <code>?</code> o se responde con un error.' } },
+          { h: 'Lifetimes', text: '<pre class="code">fn crea() -&gt; &amp;String {\n    let s = String::from("hola");\n    &amp;s\n}</pre>', predict: { q: '¿Por qué no compila?', opts: ['Falta <code>mut</code>', 'Devuelve una referencia a <code>s</code>, que se libera al terminar la función', 'Falta un lifetime y con él compilaría'], a: 1, why: 'Ningún lifetime lo arregla: la solución es devolver el <code>String</code> por valor y mover la propiedad a quien llama. Los lifetimes solo <b>describen</b> cuánto viven las referencias; no alargan nada.' } }
+        ] },
+        { id: 'rs-5', format: 'explore', title: 'Traits e iteradores', sub: 'Abstracciones sin coste', keys: ['Un trait es un contrato de comportamiento (como una interfaz de Java).', 'Los genéricos se monomorfizan: cero coste en ejecución.', 'Los iteradores son perezosos y tan rápidos como un bucle a mano.', '<code>dyn Trait</code> = despacho dinámico; <code>impl Trait</code> = estático.'], sections: [
+          { n: 'Empieza aquí', h: 'Iteradores encadenados', text: '<pre class="code">let s: i32 = (1..=4).map(|x| x * x).filter(|x| x % 2 == 0).sum();</pre>', predict: { q: '¿Cuánto vale <code>s</code>?', opts: ['30', '20', '10'], a: 1, why: 'Cuadrados 1, 4, 9, 16 → pares 4 y 16 → 20. Nada se calcula hasta el <code>sum()</code>: los iteradores son perezosos, y el compilador los convierte en un bucle tan rápido como uno escrito a mano.' } },
+          { h: 'Traits', text: '<p>Un trait es como una interfaz de Java, pero puedes implementarlo para tipos que no son tuyos.</p>', code: 'use std::fmt;\n\nstruct Piloto { nombre: String, puntos: u32 }\n\nimpl fmt::Display for Piloto {\n    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {\n        write!(f, "{} ({} pts)", self.nombre, self.puntos)\n    }\n}\n\nfn imprimir_todos<T: fmt::Display>(xs: &[T]) {\n    for x in xs { println!("{x}"); }\n}', file: 'ejemplo', predict: { q: 'Quieres un <code>Vec</code> con comandos de tipos distintos que implementan el mismo trait. Usas…', opts: ['<code>Vec&lt;impl Trait&gt;</code>', '<code>Vec&lt;Box&lt;dyn Trait&gt;&gt;</code>', 'No se puede'], a: 1, why: '<code>dyn</code> = despacho dinámico (una tabla de punteros a funciones, como en Java). Los genéricos e <code>impl Trait</code> = un tipo concreto, resuelto al compilar.' } }
+        ] }
       ] },
-      { id: 'rs-2', title: 'Ownership: cada valor tiene un dueño', steps: [
-        { t: 'learn', h: 'Tres reglas', body: '<ol><li>Cada valor tiene un único <b>dueño</b>.</li><li>Cuando el dueño sale de ámbito, el valor se libera (<code>drop</code>).</li><li>Asignar o pasar a una función <b>mueve</b> la propiedad (salvo tipos <code>Copy</code> como enteros).</li></ol><p>Avanza línea a línea y mira la memoria:</p>', w: 'trace', o: { code: 'let s1 = String::from("hola");\nlet s2 = s1;\nprintln!("{}", s1);', states: [
-          { line: 0, stack: [{ n: 's1', v: 'ptr · len 4 · cap 4', to: 'h1', hot: true }], heap: [{ id: 'h1', v: '"hola"' }], msg: '<code>String</code> guarda en la pila un puntero, la longitud y la capacidad. Las letras viven en el montón.' },
-          { line: 1, stack: [{ n: 's1', v: 'movido', dead: true }, { n: 's2', v: 'ptr · len 4 · cap 4', to: 'h1', hot: true }], heap: [{ id: 'h1', v: '"hola"' }], msg: 'Se copian los 3 campos de la pila, <b>no</b> el texto. Para evitar liberar dos veces la misma memoria, Rust invalida <code>s1</code>.' },
-          { line: 2, stack: [{ n: 's1', v: 'movido', dead: true }, { n: 's2', v: 'ptr · len 4 · cap 4', to: 'h1' }], heap: [{ id: 'h1', v: '"hola"' }], err: true, msg: 'error[E0382]: borrow of moved value: `s1`. El compilador lo detecta antes de ejecutar nada.' }] }, goal: true, goalWhy: 'Un move es barato (copia 24 bytes) y seguro (un solo dueño libera).' },
-        { t: 'mcq', q: '¿Cómo arreglas el error si de verdad necesitas dos copias del texto?', opts: ['let s2 = s1.clone();', 'let s2 = *s1;', 'let s2 = s1.copy();', 'No se puede'], a: 0, why: '<code>clone()</code> copia también los datos del montón. Es explícito porque cuesta: Rust no hace copias caras a escondidas.' },
-        { t: 'mcq', q: 'Con <code>let a = 5; let b = a;</code> ¿sigue siendo válido <code>a</code>?', opts: ['No, se ha movido', 'Sí: i32 es Copy, se copia entero en la pila', 'Solo si es mut', 'Depende del sistema operativo'], a: 1, why: 'Enteros, floats, bool, char y tuplas de tipos Copy se copian; String, Vec y Box se mueven.' },
-        { t: 'clickline', q: '¿Dónde está el error?', code: 'fn saluda(nombre: String) {\n    println!("Hola, {nombre}");\n}\n\nfn main() {\n    let n = String::from("Alberto");\n    saluda(n);\n    saluda(n);\n}', a: 7, why: 'La primera llamada mueve <code>n</code> dentro de <code>saluda</code>, que lo libera al terminar. Solución idiomática: <code>fn saluda(nombre: &amp;str)</code> y llamar con <code>saluda(&amp;n)</code>.' }
+      { title: 'Proyecto 1 · Tu propio grep', desc: 'Una herramienta de línea de comandos', lessons: [
+        { id: 'rs-6', format: 'explore', title: 'Construye tu propio grep', sub: 'clap · anyhow · tests', keys: ['La lógica va en una función pura y testeable; <code>main</code> solo lee argumentos y archivos.', 'Lifetimes en acción: el resultado toma prestados trozos del texto de entrada.', '<code>anyhow</code> + <code>.with_context()</code> dan errores que se entienden.'], sections: [
+          { n: 'Empieza aquí', h: 'Primero, la idea', text: '<p><code>grep</code> busca un texto en un archivo y muestra las líneas que lo contienen, con su número. Antes de escribirlo en Rust, escríbelo aquí: separar la búsqueda en una función pura hace que luego sea trivial de testear.</p>', fig: 'jslab', o: { rows: 9, data: { texto: 'Rust es rápido\nPython es cómodo\nrust es seguro\nSQL es declarativo' }, call: "JSON.stringify(buscar('rust', texto, true))", start: "function buscar(patron, texto, ignorarMayus) {\n  return texto.split('\\n')\n    .map((linea, i) => [i + 1, linea])\n    .filter(([n, linea]) => linea.includes(patron));   // ← respeta ignorarMayus\n}", sol: "function buscar(patron, texto, ignorarMayus) {\n  return texto.split('\\n')\n    .map((linea, i) => [i + 1, linea])\n    .filter(([n, linea]) => ignorarMayus\n      ? linea.toLowerCase().includes(patron.toLowerCase())\n      : linea.includes(patron));\n}", check: r => r === JSON.stringify([[1, 'Rust es rápido'], [3, 'rust es seguro']]) }, try: 'Haz que, con <code>ignorarMayus = true</code>, encuentre las dos líneas de Rust (la 1 y la 3).', aha: 'La versión en Rust es casi idéntica: <code>lines().enumerate().filter(…)</code>. La diferencia es que devolverá <code>&amp;str</code> que apuntan dentro del texto original, sin copiar nada.' },
+          { n: 'Hito', h: 'En Rust', blocks: [{ file: 'terminal', code: 'cargo new rgrep && cd rgrep\ncargo add clap --features derive\ncargo add anyhow' }, { file: 'src/main.rs', code: C.rgrep }], after: '<p>Prueba <code>cargo run -- Rust README.md -i</code> y <code>cargo test</code>.</p>', checks: ['Compila y los 2 tests pasan', 'Extra: búsqueda recursiva en carpetas con <code>walkdir</code>', 'Extra: expresiones regulares con <code>regex</code> y resaltado en color', 'Extra: comparado con <code>grep</code> usando <code>hyperfine</code>, con la tabla en el README'] },
+          { h: 'El lifetime de buscar', predict: { q: '¿Por qué <code>search</code> lleva <code>\'a</code> en <code>text</code> y en el resultado, pero no en <code>pattern</code>?', opts: ['Por estilo', 'El resultado son trozos de <code>text</code>: no puede vivir más que él. De <code>pattern</code> no toma nada prestado', 'Lo exige clap'], a: 1, why: 'El lifetime es documentación comprobada por el compilador: con solo leer la firma sabes de dónde salen las referencias del resultado.' } }
+        ] }
       ] },
-      { id: 'rs-3', title: 'Borrowing: prestar sin regalar', steps: [
-        { t: 'learn', h: 'Muchos lectores o un escritor', body: '<p>Una referencia <code>&amp;T</code> presta acceso sin mover. La regla del borrow checker: en cada momento puedes tener <b>muchas referencias compartidas</b> (<code>&amp;T</code>) <b>o una exclusiva</b> (<code>&amp;mut T</code>), nunca ambas.</p>', w: 'trace', o: { code: 'let mut v = vec![1, 2, 3];\nlet r = &v;\nprintln!("{}", r[0]);\nlet m = &mut v;\nm.push(4);\nprintln!("{:?}", v);', states: [
-          { line: 0, stack: [{ n: 'v', v: 'ptr · len 3', to: 'h', hot: true }], heap: [{ id: 'h', v: '[1, 2, 3]' }], msg: 'v es dueño del vector.' },
-          { line: 1, stack: [{ n: 'v', v: 'ptr · len 3', to: 'h' }, { n: 'r', v: '&v', to: 'v', hot: true }], heap: [{ id: 'h', v: '[1, 2, 3]' }], msg: 'r es un préstamo compartido: solo lectura.' },
-          { line: 2, stack: [{ n: 'v', v: 'ptr · len 3', to: 'h' }, { n: 'r', v: '&v', to: 'v' }], heap: [{ id: 'h', v: '[1, 2, 3]' }], msg: 'Último uso de r. Gracias a los <b>non-lexical lifetimes</b>, el préstamo termina aquí, no al final del bloque.' },
-          { line: 3, stack: [{ n: 'v', v: 'ptr · len 3', to: 'h' }, { n: 'r', v: 'préstamo terminado', dead: true }, { n: 'm', v: '&mut v', to: 'v', hot: true }], heap: [{ id: 'h', v: '[1, 2, 3]' }], msg: 'Ya no hay lectores vivos, así que se permite un préstamo exclusivo.' },
-          { line: 4, stack: [{ n: 'v', v: 'ptr · len 4', to: 'h' }, { n: 'm', v: '&mut v', to: 'v', hot: true }], heap: [{ id: 'h', v: '[1, 2, 3, 4]' }], msg: 'push puede reubicar el vector en el montón. Si r siguiera vivo apuntaría a memoria liberada: eso es justo lo que Rust impide.' },
-          { line: 5, stack: [{ n: 'v', v: 'ptr · len 4', to: 'h', hot: true }, { n: 'm', v: 'préstamo terminado', dead: true }], heap: [{ id: 'h', v: '[1, 2, 3, 4]' }], msg: 'Compila. Si movieras la línea 3 (println de r) debajo de m.push, obtendrías error[E0502].' }] }, goal: true },
-        { t: 'clickline', q: '¿Qué línea produce <code>error[E0502]: cannot borrow `v` as mutable because it is also borrowed as immutable</code>?', code: 'let mut v = vec![10, 20, 30];\nlet primero = &v[0];\nv.push(40);\nprintln!("{primero}");', a: 2, why: '<code>primero</code> sigue vivo (se usa en la línea 4) cuando <code>push</code> pide un préstamo exclusivo.' },
-        { t: 'fill', q: 'Haz que la función modifique el vector sin quedarse con él:', code: 'fn duplicar(v: [[0]] Vec<i32>) {\n    for x in v.iter_mut() { *x *= 2; }\n}\nlet mut datos = vec![1, 2, 3];\nduplicar([[1]] datos);', blanks: [['&mut'], ['&mut']], cs: true, why: 'Tanto la firma como la llamada indican el préstamo mutable: se ve en el código quién puede cambiar qué.' },
-        { t: 'mcq', q: '¿Qué problema clásico de C/C++ eliminan estas reglas en tiempo de compilación?', opts: ['Bucles infinitos', 'Data races y punteros colgantes (use-after-free)', 'Errores lógicos', 'Código lento'], a: 1 }
+      { title: 'Proyecto 2 · Tu propio Redis', desc: 'Un servidor de verdad, con tokio', lessons: [
+        { id: 'rs-7', format: 'explore', title: 'Redis 1: un servidor TCP', sub: 'tokio · async · PING', keys: ['Un servidor escucha en un puerto, acepta conexiones y lanza una tarea por cliente.', '<code>tokio::spawn</code> crea tareas asíncronas: miles cuestan casi nada.', '<code>read</code> devolviendo 0 significa que el cliente ha colgado.'], sections: [
+          { n: 'Empieza aquí', h: 'Qué vas a construir', text: '<p>Redis es una base de datos en memoria que usan casi todas las empresas como caché. Habla con sus clientes por TCP con un protocolo de texto muy simple. Al final de este proyecto, tu servidor responderá a <code>PING</code>, <code>ECHO</code>, <code>SET</code> (con caducidad) y <code>GET</code> igual que el Redis real. Es el reto más famoso de CodeCrafters.</p>', predict: { q: 'Mil clientes conectados a la vez, casi siempre esperando datos de la red. ¿Qué escala mejor?', opts: ['Un hilo del sistema por cliente', 'Tareas asíncronas sobre unos pocos hilos (tokio)', 'Atender a los clientes de uno en uno'], a: 1, why: 'Un hilo del sistema reserva megas de memoria y el cambio entre hilos cuesta. Una tarea de tokio ocupa unos pocos KB, y mientras espera a la red no gasta CPU.' } },
+          { n: 'Hito', h: 'Responde PONG a todo', blocks: [{ file: 'terminal', code: 'cargo new mini-redis && cd mini-redis\ncargo add tokio --features full\ncargo run' }, { file: 'src/main.rs', code: C.redis1 }, { text: '<p>Pruébalo con este cliente en Python, en otra terminal (o con <code>redis-cli</code> si lo tienes).</p>', file: 'cliente.py', code: C.redisClient }], checks: ['El servidor arranca en el puerto 6379', 'El cliente recibe <code>+PONG</code>', 'Con dos clientes a la vez, los dos reciben respuesta'], aha: 'Ahora mismo responde PONG a cualquier cosa, porque aún no entiende lo que le dicen. Eso es la siguiente lección.' }
+        ] },
+        { id: 'rs-8', format: 'explore', title: 'Redis 2: el protocolo RESP', sub: 'Construyes: el parser', keys: ['RESP: <code>*n</code> = array de n elementos; <code>$len</code> = texto de esa longitud; <code>+</code> = respuesta simple; <code>-</code> = error.', 'Separador: <code>\\r\\n</code>.', 'Parsear con <code>Option</code> y <code>?</code>: cualquier hueco devuelve None sin pánicos.'], sections: [
+          { n: 'Empieza aquí', h: 'Cómo habla un cliente de Redis', text: '<p>Cuando escribes <code>SET piloto Alonso</code>, el cliente envía:</p><pre class="code">*3\\r\\n$3\\r\\nSET\\r\\n$6\\r\\npiloto\\r\\n$6\\r\\nAlonso\\r\\n</pre><p><code>*3</code>: un array de 3 elementos. Cada <code>$n</code>: un texto de n bytes. <code>\\r\\n</code> separa las partes.</p>', fig: 'jslab', o: { rows: 6, call: "JSON.stringify(resp(['SET', 'piloto', 'Alonso']))", start: "function resp(args) {\n  let s = '*' + args.length + '\\r\\n';\n  for (const a of args) s += a + '\\r\\n';   // ← falta la línea $longitud\n  return s;\n}", sol: "function resp(args) {\n  let s = '*' + args.length + '\\r\\n';\n  for (const a of args) s += '$' + a.length + '\\r\\n' + a + '\\r\\n';\n  return s;\n}", check: r => r === JSON.stringify('*3\r\n$3\r\nSET\r\n$6\r\npiloto\r\n$6\r\nAlonso\r\n') }, try: 'Escribe el codificador: añade la línea <code>$longitud</code> antes de cada argumento.', aha: 'La longitud delante permite que los valores contengan cualquier cosa, incluso <code>\\r\\n</code>: el lector sabe cuántos bytes leer sin buscar el final.' },
+          { n: 'Construye tu propia X', h: 'Ahora al revés: el parser', text: '<p>Tu servidor recibe ese texto y tiene que sacar la lista de argumentos. Es justo lo que hará la función <code>parsear</code> en Rust.</p>', fig: 'jslab', o: { rows: 11, call: "JSON.stringify(parsear('*2\\r\\n$4\\r\\nECHO\\r\\n$4\\r\\nhola\\r\\n'))", start: "function parsear(texto) {\n  const lineas = texto.split('\\r\\n');\n  const n = parseInt(lineas[0].slice(1));   // '*2' -> 2\n  const args = [];\n  for (let i = 0; i < n; i++) {\n    // cada argumento ocupa 2 líneas: '$4' y 'ECHO'\n    args.push(lineas[1 + i]);   // ← índice incorrecto\n  }\n  return args;\n}", sol: "function parsear(texto) {\n  const lineas = texto.split('\\r\\n');\n  const n = parseInt(lineas[0].slice(1));\n  const args = [];\n  for (let i = 0; i < n; i++) {\n    args.push(lineas[2 + 2 * i]);\n  }\n  return args;\n}", check: r => r === JSON.stringify(['ECHO', 'hola']) }, try: 'Corrige el índice para obtener <code>["ECHO", "hola"]</code>.', aha: 'En Rust lo harás con un iterador de líneas: <code>lineas.next()?</code> se salta la línea <code>$n</code> y la siguiente es el valor. Cada <code>?</code> devuelve <code>None</code> si el mensaje viene incompleto, sin pánicos.' },
+          { n: 'Hito', h: 'PING y ECHO de verdad', code: C.redis2, file: 'src/main.rs', checks: ['<code>cargo test</code> pasa el test de <code>parsea_echo</code>', 'El cliente recibe <code>$4\\r\\nhola\\r\\n</code> al enviar <code>ECHO hola</code>', 'Un comando desconocido devuelve un error <code>-ERR</code> en vez de colgar el servidor'] }
+        ] },
+        { id: 'rs-9', format: 'explore', title: 'Redis 3: estado compartido', sub: 'SET, GET y caducidad', keys: ['Datos compartidos entre tareas: <code>Arc&lt;Mutex&lt;…&gt;&gt;</code>.', '<code>Arc</code> = varios dueños entre hilos; <code>Mutex</code> = uno modifica a la vez.', 'El compilador rechaza <code>Rc</code> o <code>RefCell</code> entre hilos: no son <code>Send</code>/<code>Sync</code>.', 'Caducidad perezosa: se comprueba al leer, como hace Redis.'], sections: [
+          { n: 'Empieza aquí', h: 'Una tabla para todos los clientes', text: '<p>Para <code>SET</code> y <code>GET</code> necesitas un <code>HashMap</code> que compartan todas las conexiones, que corren en tareas distintas y quizá en hilos distintos.</p>', predict: { q: 'Usas <code>Rc&lt;RefCell&lt;HashMap&gt;&gt;</code> (lo de un solo hilo) y lo pasas a <code>tokio::spawn</code>. ¿Qué pasa?', opts: ['Funciona más rápido', 'No compila: <code>Rc</code> no es seguro entre hilos (no es <code>Send</code>)', 'Funciona, pero con corrupciones de datos a veces'], a: 1, why: 'Es la "concurrencia sin miedo" de Rust: lo que en otros lenguajes sería una corrupción aleatoria en producción, aquí es un error al compilar. La versión segura es <code>Arc&lt;Mutex&lt;HashMap&gt;&gt;</code>.' } },
+          { h: 'Caducidad', text: '<p><code>SET clave valor PX 2000</code> hace que la clave desaparezca a los 2 segundos.</p>', predict: { q: '¿Cómo lo implementarías de forma más sencilla?', opts: ['Un hilo que despierta cada milisegundo y borra lo caducado', 'Guardar la hora de caducidad junto al valor y comprobarla al hacer GET', 'Un temporizador por cada clave'], a: 1, why: 'Es la "expiración perezosa" que usa el propio Redis (combinada con una limpieza periódica). Barata y sencilla.' } },
+          { n: 'Hito', h: 'Tu Redis completo', code: C.redis3, file: 'src/main.rs', after: '<p>Ejecuta el cliente de la primera lección: verás <code>+OK</code> y <code>$6\\r\\nAlonso\\r\\n</code>. Espera 2 segundos y repite el GET: <code>$-1</code> (nil).</p>', checks: ['<code>cargo test</code>: pasan los 2 tests', 'SET/GET funcionan desde el cliente y la clave caduca con PX', 'Dos clientes a la vez ven los mismos datos', 'Extra: un buffer por conexión para mensajes que llegan partidos en varios <code>read</code>', 'Extra: <code>DEL</code>, <code>INCR</code> y <code>KEYS</code>; CI con GitHub Actions'] }
+        ] }
       ] },
-      { id: 'rs-4', title: 'Lifetimes sin miedo', steps: [
-        { t: 'learn', h: 'Un lifetime es una promesa sobre cuánto vive una referencia', body: '<p>Casi siempre se infieren. Solo tienes que escribirlos cuando una función devuelve una referencia y el compilador no sabe de cuál de las entradas sale.</p><pre class="code">fn mas_larga&lt;\'a&gt;(x: &amp;\'a str, y: &amp;\'a str) -&gt; &amp;\'a str {\n    if x.len() &gt;= y.len() { x } else { y }\n}</pre><p>Se lee: "el resultado vive como mucho lo que viva la más corta de las dos entradas".</p>' },
-        { t: 'mcq', q: '¿Por qué no compila esto?<pre class="code">fn crea() -&gt; &amp;String {\n    let s = String::from("hola");\n    &amp;s\n}</pre>', opts: ['Falta mut', 'Devuelve una referencia a s, que se libera al terminar la función (referencia colgante)', 'String no admite referencias', 'Falta un lifetime y con él compilaría'], a: 1, why: 'Ningún lifetime lo arregla: devuelve el <code>String</code> por valor (<code>-&gt; String</code>) y mueves la propiedad al llamador.' },
-        { t: 'fill', q: 'Una struct que guarda una referencia necesita lifetime:', code: 'struct Extracto<[[0]]> {\n    parte: &[[1]] str,\n}', blanks: [["'a"], ["'a"]], cs: true, why: 'Garantiza que el Extracto no sobreviva al texto del que toma la referencia.' },
-        { t: 'mcq', q: '¿Qué significa <code>&amp;\'static str</code>?', opts: ['Un texto que no se puede leer', 'Una referencia válida durante todo el programa, como los literales de texto', 'Una variable global mutable', 'Un texto en el montón'], a: 1 }
+      { title: 'Proyecto 3 · Tu propio emulador', desc: 'CHIP-8, bits y WebAssembly', lessons: [
+        { id: 'rs-10', format: 'explore', title: 'Construye tu propio CHIP-8', sub: 'Fetch, decode, execute', keys: ['Un emulador es un bucle: leer instrucción, decodificar y ejecutar.', 'Un opcode de 16 bits se trocea con máscaras (<code>&amp;</code>) y desplazamientos (<code>&gt;&gt;</code>).', '<code>overflowing_add</code> te da el resultado y si hubo acarreo.', 'Con <code>wasm-pack</code> el mismo núcleo corre en el navegador.'], sections: [
+          { n: 'Empieza aquí', h: 'Una consola de 1977', text: '<p>CHIP-8 es una máquina virtual con 4 KB de memoria, 16 registros, una pantalla de 64×32 píxeles y 35 instrucciones de 2 bytes. Por eso es el primer emulador que se recomienda en build-your-own-x: cabe en un fin de semana y te enseña cómo funciona una CPU.</p><p>Cada instrucción es un número de 16 bits como <code>0xD123</code>. Los 4 primeros bits dicen qué operación es; el resto son sus datos.</p>', fig: 'jslab', o: { rows: 10, call: 'JSON.stringify([0xD123, 0x6A05, 0x1ABC].map(decodificar))', start: "function decodificar(op) {\n  return {\n    tipo: op >> 12,              // primer nibble: la operación\n    x:   (op & 0x0F00) >> 8,     // segundo nibble: registro X\n    y:   0,                      // ← tercer nibble: registro Y\n    n:   op & 0x000F,            // último nibble\n    nn:  op & 0x00FF,            // último byte\n    nnn: op & 0x0FFF             // últimos 12 bits: una dirección\n  };\n}", sol: "function decodificar(op) {\n  return {\n    tipo: op >> 12,\n    x:   (op & 0x0F00) >> 8,\n    y:   (op & 0x00F0) >> 4,\n    n:   op & 0x000F,\n    nn:  op & 0x00FF,\n    nnn: op & 0x0FFF\n  };\n}", check: r => { const a = JSON.parse(r); return a[0].tipo === 13 && a[0].x === 1 && a[0].y === 2 && a[0].n === 3 && a[1].nn === 5 && a[2].nnn === 0xABC; } }, try: 'Completa <code>y</code> con la máscara y el desplazamiento correctos: para <code>0xD123</code> debe salir <b>2</b>.', aha: 'Esto mismo, en Rust, son 5 líneas al principio de <code>paso()</code>. Después un <code>match</code> sobre <code>op &gt;&gt; 12</code> decide qué hacer.' },
+          { h: 'Sumar con acarreo', predict: { q: 'La instrucción <code>8XY4</code> suma VY a VX y pone VF = 1 si hay acarreo. Con VX = 200 y VY = 100 (bytes), ¿qué queda?', opts: ['VX = 300, VF = 0', 'VX = 44, VF = 1', 'Pánico'], a: 1, why: '300 no cabe en un byte: 300 − 256 = 44, y hay acarreo. En Rust: <code>let (r, acarreo) = self.v[x].overflowing_add(self.v[y]);</code>. Un <code>+</code> normal haría pánico en debug.' } },
+          { n: 'Hito', h: 'El núcleo del emulador', code: C.chip8, file: 'src/lib.rs', checks: ['<code>cargo test</code>: pasan los 2 tests', 'Implementadas el resto de instrucciones, con un test por instrucción', 'Pasa una ROM de test (por ejemplo, la suite de Timendus)', 'Frontend con <code>minifb</code> o <code>macroquad</code>, y versión WebAssembly con <code>wasm-pack</code> publicada en GitHub Pages'] }
+        ] },
+        { id: 'rs-11', format: 'explore', title: 'Calidad profesional y validación', sub: 'Tests, clippy, CI', keysTitle: 'Has construido', keys: ['Un grep, un Redis que habla el protocolo real y un emulador, en Rust.', 'Ownership, borrowing, lifetimes, traits, async y concurrencia, usados en proyectos de verdad.', 'Tres repos con tests y CI: la prueba de que sabes Rust.'], sections: [
+          { n: 'Hito', h: 'El listón de un repo serio', blocks: [{ file: 'terminal', code: 'cargo fmt                                  # formato estándar\ncargo clippy --all-targets -- -D warnings  # linter: cero avisos\ncargo test                                 # unitarios + integración + doctests\ncargo doc --open                           # documentación desde los comentarios ///' }, { file: '.github/workflows/ci.yml', code: C.ci }], checks: ['CI en verde en rgrep, mini-redis y chip8 (con su badge en el README)', 'Cada README explica qué construiste, cómo probarlo y qué decisiones tomaste', 'Extra: el núcleo de chip8 publicado como crate en crates.io'] },
+          { n: 'Extra', h: 'Una API sobre tu base de datos de F1', text: '<p>Si quieres un cuarto proyecto que una Rust con lo que aprendiste en SQL: una API REST con axum y sqlx sobre la base de datos de F1.</p>', code: C.f1api, file: 'src/main.rs (f1-api)' },
+          { h: 'La pregunta de entrevista', predict: { q: 'Te preguntan: "¿qué garantiza un bloque <code>unsafe</code>?"', opts: ['Que el código es inseguro y fallará', 'Nada automáticamente: tú prometes mantener invariantes que el compilador no puede comprobar (punteros crudos, FFI…); el borrow checker sigue activo', 'Que se desactiva el borrow checker en todo el archivo'], a: 1, why: '<code>unsafe</code> habilita cinco operaciones concretas. Todo lo demás se sigue comprobando.' } }
+        ] }
       ] }
-    ] },
-    { title: 'Modelar con tipos', desc: 'structs, enums, errores, traits, iteradores', lessons: [
-      { id: 'rs-5', title: 'Structs, enums y match', steps: [
-        { t: 'learn', h: 'Los enums de Rust llevan datos', body: '<pre class="code">enum Comando {\n    Mover { x: i32, y: i32 },\n    Escribir(String),\n    Salir,\n}\n\nfn ejecutar(c: Comando) {\n    match c {\n        Comando::Mover { x, y } =&gt; println!("a {x},{y}"),\n        Comando::Escribir(t) =&gt; println!("{t}"),\n        Comando::Salir =&gt; std::process::exit(0),\n    }\n}</pre><p>Modela estados posibles de forma que los imposibles no se puedan escribir.</p>' },
-        { t: 'mcq', q: 'Añades la variante <code>Comando::Saltar</code> y no tocas el <code>match</code>. ¿Qué pasa?', opts: ['Se ignora en tiempo de ejecución', 'Error de compilación: match no exhaustivo', 'Pánico al ejecutarse', 'Un warning sin más'], a: 1, why: 'La exhaustividad es una red de seguridad enorme al refactorizar.' },
-        { t: 'order', q: 'Ordena una struct con un método constructor y otro de instancia:', lines: ['struct Jugador { nombre: String, vida: u32 }', 'impl Jugador {', '    fn nuevo(nombre: &str) -> Self {', '        Self { nombre: nombre.to_string(), vida: 100 }', '    }', '    fn herir(&mut self, d: u32) { self.vida = self.vida.saturating_sub(d); }', '}'], why: '<code>fn nuevo</code> no recibe <code>self</code> (función asociada: <code>Jugador::nuevo("Ki")</code>); <code>herir</code> pide <code>&amp;mut self</code> porque cambia el estado.' },
-        { t: 'fill', q: 'Desestructura con <code>if let</code> cuando solo te interesa un caso:', code: '[[0]] Comando::Escribir(texto) = cmd {\n    println!("{texto}");\n}', blanks: [['if let']], why: 'if let = match de un solo brazo.' }
-      ] },
-      { id: 'rs-6', title: 'Option, Result y el operador ?', steps: [
-        { t: 'learn', h: 'No hay null ni excepciones', body: '<p><code>Option&lt;T&gt;</code> = <code>Some(T)</code> o <code>None</code>. <code>Result&lt;T, E&gt;</code> = <code>Ok(T)</code> o <code>Err(E)</code>. El tipo te obliga a manejar el caso malo.</p><pre class="code">fn leer_config(ruta: &amp;str) -&gt; Result&lt;u16, Box&lt;dyn std::error::Error&gt;&gt; {\n    let texto = std::fs::read_to_string(ruta)?;   // si falla, devuelve el Err\n    let puerto: u16 = texto.trim().parse()?;\n    Ok(puerto)\n}</pre>' },
-        { t: 'fill', q: 'Propaga el error con el operador adecuado:', code: 'fn edad(s: &str) -> Result<u8, std::num::ParseIntError> {\n    let n: u8 = s.parse()[[0]];\n    Ok(n)\n}', blanks: [['?']], why: '<code>?</code> desenvuelve el Ok o hace <code>return Err(e.into())</code>.' },
-        { t: 'mcq', q: '¿Cuándo es aceptable <code>.unwrap()</code>?', opts: ['Siempre, es más corto', 'En prototipos, tests o cuando un fallo es un bug imposible (mejor <code>.expect("motivo")</code>)', 'Nunca, no compila', 'Solo con Option'], a: 1, why: 'En código de librería o servidores, propaga con <code>?</code>. En apps, <code>anyhow</code>; en librerías, errores propios con <code>thiserror</code>.' },
-        { t: 'mcq', q: '<code>vec![3, 8].iter().find(|&amp;&amp;x| x &gt; 5)</code> devuelve…', opts: ['8', 'Some(&amp;8)', 'Ok(8)', 'true'], a: 1, why: 'find devuelve Option con una referencia al elemento encontrado.' },
-        { t: 'clickline', q: 'Esta función no compila. ¿Qué línea?', code: 'fn main() {\n    let n: i32 = "12".parse()?;\n    println!("{n}");\n}', a: 1, why: '<code>?</code> solo se puede usar en funciones que devuelven Result u Option. Arreglo: <code>fn main() -&gt; Result&lt;(), Box&lt;dyn Error&gt;&gt;</code> y <code>Ok(())</code> al final.' }
-      ] },
-      { id: 'rs-7', title: 'Traits y genéricos', steps: [
-        { t: 'learn', h: 'Un trait es un contrato de comportamiento', body: '<pre class="code">trait Describir {\n    fn describir(&amp;self) -&gt; String;\n}\n\nimpl Describir for Jugador {\n    fn describir(&amp;self) -&gt; String { format!("{} ({} PV)", self.nombre, self.vida) }\n}\n\nfn imprimir&lt;T: Describir&gt;(x: &amp;T) { println!("{}", x.describir()); }</pre><p>Los genéricos se <b>monomorfizan</b>: el compilador genera una versión por tipo, sin coste en ejecución.</p>' },
-        { t: 'fill', q: 'Implementa <code>Display</code> para poder usar <code>{}</code>:', code: 'use std::fmt;\nimpl fmt::[[0]] for Jugador {\n    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {\n        [[1]]!(f, "{} ({})", self.nombre, self.vida)\n    }\n}', blanks: [['Display'], ['write']], cs: true },
-        { t: 'mcq', q: 'Quieres un <code>Vec</code> con enemigos de tipos distintos que implementan <code>Describir</code>. Usas…', opts: ['Vec&lt;Describir&gt;', 'Vec&lt;Box&lt;dyn Describir&gt;&gt;', 'Vec&lt;impl Describir&gt;', 'No se puede'], a: 1, why: '<code>dyn</code> = despacho dinámico (vtable). Genéricos/<code>impl Trait</code> = estático, un solo tipo concreto.' },
-        { t: 'mcq', q: '¿Qué hace <code>#[derive(Debug, Clone, PartialEq)]</code>?', opts: ['Hereda de una clase', 'Genera automáticamente implementaciones de esos traits', 'Importa librerías', 'Activa optimizaciones'], a: 1 }
-      ] },
-      { id: 'rs-8', title: 'Iteradores y closures', steps: [
-        { t: 'learn', h: 'Cadenas perezosas y tan rápidas como un for', body: '<pre class="code">let pilotos = vec![("Alonso", 2), ("Sainz", 0), ("Hamilton", 3)];\nlet ganadores: Vec&lt;&amp;str&gt; = pilotos.iter()\n    .filter(|(_, v)| *v &gt; 0)\n    .map(|(n, _)| *n)\n    .collect();</pre><p>Nada se ejecuta hasta <code>collect</code>, <code>sum</code>, <code>for</code>… (son <b>perezosos</b>). El compilador los optimiza como un bucle escrito a mano.</p>' },
-        { t: 'mcq', q: '¿Qué imprime?<pre class="code">let s: i32 = (1..=4).map(|x| x * x).filter(|x| x % 2 == 0).sum();\nprintln!("{s}");</pre>', opts: ['30', '20', '4', '10'], a: 1, why: 'Cuadrados 1, 4, 9, 16 → pares 4 y 16 → 20.' },
-        { t: 'fill', q: 'Cuenta palabras de más de 3 letras:', code: 'let n = texto.split_whitespace()\n    .[[0]](|p| p.len() > 3)\n    .[[1]]();', blanks: [['filter'], ['count']], cs: true },
-        { t: 'mcq', q: 'Diferencia entre <code>iter()</code>, <code>iter_mut()</code> e <code>into_iter()</code> sobre un Vec:', opts: ['Ninguna', '&amp;T, &amp;mut T y T (consume el vector)', 'Velocidad', 'Orden de recorrido'], a: 1 },
-        { t: 'mcq', q: 'Una closure que modifica una variable capturada implementa…', opts: ['Fn', 'FnMut', 'FnOnce siempre', 'Ninguna'], a: 1, why: 'Fn: solo lee. FnMut: modifica lo capturado. FnOnce: consume lo capturado (solo se puede llamar una vez).' }
-      ] }
-    ] },
-    { title: 'Proyectos de portfolio', desc: 'Lo que enseñarás en una entrevista', lessons: [
-      { id: 'rs-9', title: 'Proyecto 1: rgrep (CLI)', proj: true, sub: 'clap · anyhow · tests', steps: [
-        { t: 'code', h: 'Tu primer binario serio', blocks: [
-          { text: '<p>Un grep minimalista. Enseña: parseo de argumentos, lectura de archivos, errores con contexto, lifetimes en la función de búsqueda y tests.</p>', file: 'terminal', code: 'cargo new rgrep && cd rgrep\ncargo add clap --features derive\ncargo add anyhow' },
-          { file: 'src/main.rs', code: `use anyhow::{Context, Result};
-use clap::Parser;
-use std::{fs, path::PathBuf};
-
-/// Busca un patrón en un archivo, como grep
-#[derive(Parser)]
-#[command(version, about)]
-struct Args {
-    /// Texto a buscar
-    pattern: String,
-    /// Archivo donde buscar
-    path: PathBuf,
-    /// Ignorar mayúsculas y minúsculas
-    #[arg(short, long)]
-    ignore_case: bool,
-}
-
-fn main() -> Result<()> {
-    let args = Args::parse();
-    let content = fs::read_to_string(&args.path)
-        .with_context(|| format!("no se pudo leer {}", args.path.display()))?;
-    for (n, line) in search(&args.pattern, &content, args.ignore_case) {
-        println!("{n}: {line}");
-    }
-    Ok(())
-}
-
-pub fn search<'a>(pattern: &str, text: &'a str, ignore_case: bool) -> Vec<(usize, &'a str)> {
-    let pat = if ignore_case { pattern.to_lowercase() } else { pattern.to_string() };
-    text.lines()
-        .enumerate()
-        .filter(|(_, l)| if ignore_case { l.to_lowercase().contains(&pat) } else { l.contains(&pat) })
-        .map(|(i, l)| (i + 1, l))
-        .collect()
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn distingue_mayusculas() {
-        let t = "Rust es rápido\\nPython es cómodo\\nrust es seguro";
-        assert_eq!(search("Rust", t, false), vec![(1, "Rust es rápido")]);
-    }
-
-    #[test]
-    fn ignora_mayusculas() {
-        let t = "Rust es rápido\\nPython es cómodo\\nrust es seguro";
-        assert_eq!(search("RUST", t, true).len(), 2);
-    }
-}` }
-        ], after: '<p>Prueba: <code>cargo run -- Rust README.md -i</code> y <code>cargo test</code>.</p>', checks: ['Compila, los 2 tests pasan', 'Extra 1: búsqueda recursiva en carpetas con el crate <code>walkdir</code>', 'Extra 2: soporte de expresiones regulares con <code>regex</code> y resaltado en color', 'Extra 3: medir con <code>hyperfine</code> contra <code>grep</code> y poner la tabla en el README'] },
-        { t: 'mcq', q: '¿Por qué <code>search</code> necesita <code>\'a</code> en <code>text</code> y en el resultado?', opts: ['Por estilo', 'Devuelve trozos (&amp;str) del texto de entrada: el resultado no puede vivir más que text', 'Porque pattern es String', 'Lo exige clap'], a: 1, why: 'Fíjate en que <code>pattern</code> no lleva <code>\'a</code>: el resultado no toma nada prestado de él.' }
-      ] },
-      { id: 'rs-10', title: 'Proyecto 2: f1-api (axum + sqlx)', proj: true, sub: 'API REST con tu BD de F1', steps: [
-        { t: 'code', h: 'Una API real sobre datos reales', blocks: [
-          { text: '<p>Reutiliza la base de datos del curso de SQL. Crea <code>f1.db</code> con el script de abajo: <code>sqlite3 f1.db &lt; f1.sql</code>.</p>', file: 'terminal', code: 'cargo new f1-api && cd f1-api\ncargo add axum@0.7\ncargo add tokio --features full\ncargo add serde --features derive\ncargo add sqlx@0.8 --features runtime-tokio,sqlite' },
-          { file: 'f1.sql (BD del curso)', code: (window.F1_SQL || '').trim() },
-          { file: 'src/main.rs', code: `use axum::{extract::{Path, State}, http::StatusCode, routing::get, Json, Router};
-use serde::Serialize;
-use sqlx::{sqlite::SqlitePoolOptions, FromRow, SqlitePool};
-
-#[derive(Serialize, FromRow)]
-struct Driver {
-    driver_id: i64,
-    forename: String,
-    surname: String,
-    nationality: String,
-}
-
-const SELECT_DRIVER: &str =
-    "SELECT driverId AS driver_id, forename, surname, nationality FROM drivers";
-
-#[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    let pool = SqlitePoolOptions::new().connect("sqlite://f1.db").await?;
-    let app = Router::new()
-        .route("/drivers", get(list_drivers))
-        .route("/drivers/:id", get(get_driver))
-        .with_state(pool);
-    let listener = tokio::net::TcpListener::bind("127.0.0.1:3000").await?;
-    println!("Escuchando en http://127.0.0.1:3000");
-    axum::serve(listener, app).await?;
-    Ok(())
-}
-
-async fn list_drivers(State(pool): State<SqlitePool>) -> Result<Json<Vec<Driver>>, StatusCode> {
-    sqlx::query_as::<_, Driver>(&format!("{SELECT_DRIVER} ORDER BY surname"))
-        .fetch_all(&pool)
-        .await
-        .map(Json)
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)
-}
-
-async fn get_driver(
-    State(pool): State<SqlitePool>,
-    Path(id): Path<i64>,
-) -> Result<Json<Driver>, StatusCode> {
-    sqlx::query_as::<_, Driver>(&format!("{SELECT_DRIVER} WHERE driverId = ?"))
-        .bind(id)
-        .fetch_optional(&pool)
-        .await
-        .map_err(|_| StatusCode::INTERNAL_SERVER_ERROR)?
-        .map(Json)
-        .ok_or(StatusCode::NOT_FOUND)
-}` }
-        ], after: '<p>Prueba <code>curl localhost:3000/drivers/1</code>. Con axum 0.8 la ruta se escribe <code>/drivers/{id}</code>.</p>', checks: ['/drivers y /drivers/:id funcionan; un id inexistente da 404', 'Añadido <code>/standings/:year</code> con la consulta de puntos por piloto (GROUP BY) del curso de SQL', 'Tests de integración con <code>tower::ServiceExt::oneshot</code>', 'Dockerfile multi-stage y despliegue (Fly.io o Shuttle) con URL en el README'] },
-        { t: 'mcq', q: '¿Por qué <code>.bind(id)</code> en lugar de meter el id en el texto con <code>format!</code>?', opts: ['Es más corto', 'Evita inyección SQL: el valor viaja separado de la consulta', 'Es obligatorio en SQLite', 'Para que sea async'], a: 1, why: 'El <code>format!</code> de arriba solo concatena SQL fijo escrito por ti, nunca datos del usuario.' },
-        { t: 'mcq', q: '¿Qué aporta <code>State(pool)</code>?', opts: ['Crea una conexión por petición', 'Comparte el pool de conexiones entre todos los handlers (es barato de clonar)', 'Guarda sesiones de usuario', 'Nada'], a: 1 }
-      ] },
-      { id: 'rs-11', title: 'Concurrencia sin miedo', steps: [
-        { t: 'learn', h: 'Send, Sync, Arc y Mutex', body: '<pre class="code">use std::sync::{Arc, Mutex};\nuse std::thread;\n\nlet contador = Arc::new(Mutex::new(0));\nlet mut hilos = vec![];\nfor _ in 0..8 {\n    let c = Arc::clone(&amp;contador);\n    hilos.push(thread::spawn(move || {\n        *c.lock().unwrap() += 1;\n    }));\n}\nfor h in hilos { h.join().unwrap(); }\nprintln!("{}", *contador.lock().unwrap()); // 8</pre><ul><li><b>Arc</b>: varios dueños entre hilos (conteo atómico).</li><li><b>Mutex</b>: un solo hilo modifica a la vez.</li><li>El compilador rechaza compartir <code>Rc</code> o <code>RefCell</code> entre hilos: no son <code>Send</code>/<code>Sync</code>.</li></ul>' },
-        { t: 'mcq', q: 'Usas <code>Rc&lt;Mutex&lt;i32&gt;&gt;</code> en lugar de <code>Arc</code> con <code>thread::spawn</code>. ¿Qué pasa?', opts: ['Funciona más rápido', 'No compila: Rc no es Send', 'Data race en ejecución', 'Funciona igual'], a: 1, why: 'El famoso "fearless concurrency": la data race se convierte en un error de compilación.' },
-        { t: 'fill', q: 'Comunicar hilos con un canal:', code: 'let (tx, rx) = std::sync::mpsc::[[0]]();\nstd::thread::spawn([[1]] || tx.send("hecho").unwrap());\nprintln!("{}", rx.recv().unwrap());', blanks: [['channel'], ['move']], cs: true, why: '<code>move</code> transfiere <code>tx</code> al hilo.' },
-        { t: 'mcq', q: 'Para miles de conexiones de red que esperan E/S, ¿qué escala mejor?', opts: ['Un hilo del sistema por conexión', 'async/await con un runtime como Tokio', 'Un solo hilo bloqueante', 'Procesos separados'], a: 1 }
-      ] },
-      { id: 'rs-12', title: 'Proyecto 3: pulse (tokio)', proj: true, sub: 'Concurrencia asíncrona', steps: [
-        { t: 'code', h: 'Comprueba 100 URLs a la vez', blocks: [
-          { file: 'terminal', code: 'cargo new pulse && cd pulse\ncargo add tokio --features full\ncargo add reqwest@0.12 --no-default-features --features rustls-tls\ncargo add futures' },
-          { file: 'src/main.rs', code: `use futures::stream::{self, StreamExt};
-use std::time::{Duration, Instant};
-
-#[tokio::main]
-async fn main() {
-    let urls: Vec<String> = std::env::args().skip(1).collect();
-    let client = reqwest::Client::builder()
-        .timeout(Duration::from_secs(5))
-        .build()
-        .expect("cliente HTTP");
-
-    let results = stream::iter(urls)
-        .map(|url| {
-            let client = client.clone();
-            async move {
-                let t = Instant::now();
-                let res = client.get(&url).send().await;
-                (url, res.map(|r| r.status()), t.elapsed())
-            }
-        })
-        .buffer_unordered(8) // como mucho 8 peticiones simultáneas
-        .collect::<Vec<_>>()
-        .await;
-
-    for (url, status, dt) in results {
-        match status {
-            Ok(s) => println!("{:>4} {:>6} ms  {url}", s.as_u16(), dt.as_millis()),
-            Err(e) => println!(" ERR {:>6} ms  {url}  ({e})", dt.as_millis()),
-        }
-    }
-}` }
-        ], after: '<p>Prueba: <code>cargo run -- https://www.rust-lang.org https://crates.io https://no-existe.invalid</code></p>', checks: ['Funciona con 3 URLs y muestra errores sin hacer pánico', 'Lee las URLs de un archivo y acepta <code>--concurrency N</code> con clap', 'Benchmark: 100 URLs con concurrencia 1 frente a 16, resultados en el README', 'Modo vigilancia: repetir cada 30 s con <code>tokio::time::interval</code>'] },
-        { t: 'mcq', q: '¿Qué controla <code>buffer_unordered(8)</code>?', opts: ['El tamaño de cada respuesta', 'Cuántos futuros se ejecutan a la vez; los resultados llegan en orden de finalización', 'El número de hilos del sistema', 'El timeout'], a: 1 }
-      ] },
-      { id: 'rs-13', title: 'Proyecto 4: emulador CHIP-8 en WASM', proj: true, sub: 'El proyecto que destaca', steps: [
-        { t: 'learn', h: 'Por qué este proyecto', body: '<p>Un emulador demuestra lo que piden en sistemas: bits, memoria, tipos bien modelados, tests y rendimiento. CHIP-8 tiene solo 35 instrucciones, pantalla de 64×32 y cabe en un fin de semana largo. Compilado a WebAssembly, cualquiera lo prueba desde tu portfolio.</p><pre class="code">struct Chip8 {\n    mem: [u8; 4096],\n    v: [u8; 16],        // registros V0..VF\n    i: u16, pc: u16,\n    stack: Vec&lt;u16&gt;,\n    pantalla: [bool; 64 * 32],\n    teclas: [bool; 16],\n    delay: u8, sonido: u8,\n}</pre>' },
-        { t: 'fill', q: 'Decodificar un opcode de 2 bytes leído en <code>pc</code>:', code: 'let op = (self.mem[pc] as u16) [[0]] 8 | self.mem[pc + 1] as u16;\nlet x = ((op & 0x0F00) >> 8) as usize;\nlet nn = (op & [[1]]) as u8;', blanks: [['<<'], ['0x00FF', '0xFF', '0x00ff', '0xff']], cs: true, why: 'Desplazas el byte alto y haces OR con el bajo; luego extraes los "nibbles" con máscaras.' },
-        { t: 'code', h: 'Hitos', body: '<p>Sigue la especificación de Cowgod\'s Chip-8 Technical Reference.</p>', checks: ['Núcleo: fetch–decode–execute con <code>match</code> sobre nibbles, tests por instrucción', 'Pasa una ROM de test (p. ej. la suite de Timendus)', 'Frontend nativo con <code>minifb</code> o <code>macroquad</code>', 'Compilado con <code>wasm-pack</code> y jugable en una página de GitHub Pages enlazada en tu README'] },
-        { t: 'mcq', q: 'La instrucción <code>8XY4</code> suma VY a VX y pone VF = 1 si hay acarreo. ¿Qué método de u8 lo hace limpio?', opts: ['wrapping_add', 'overflowing_add (devuelve resultado y bool de acarreo)', 'checked_add', 'saturating_add'], a: 1 }
-      ] }
-    ] },
-    { title: 'Validación', desc: 'Calidad profesional y examen', lessons: [
-      { id: 'rs-14', title: 'Calidad profesional: tests, clippy y CI', proj: true, sub: 'Para los 4 repos', steps: [
-        { t: 'code', h: 'El listón de un repo serio', blocks: [
-          { file: 'terminal', code: 'cargo fmt                               # formato estándar\ncargo clippy --all-targets -- -D warnings  # linter: cero warnings\ncargo test                              # unit + integración + doctests\ncargo doc --open                        # documentación desde /// comentarios' },
-          { file: '.github/workflows/ci.yml', code: `name: CI
-on: [push, pull_request]
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: dtolnay/rust-toolchain@stable
-        with:
-          components: clippy, rustfmt
-      - run: cargo fmt --check
-      - run: cargo clippy --all-targets -- -D warnings
-      - run: cargo test` }
-        ], checks: ['CI en verde en los 4 proyectos (badge en el README)', 'Al menos un doctest en una función pública', 'He publicado un crate pequeño en crates.io (por ejemplo, el núcleo de rgrep o de chip8 como librería)', 'He resuelto 20 ejercicios de la pista de Rust de Exercism con revisión de mentor'] },
-        { t: 'mcq', q: '¿Dónde van los tests de integración en un proyecto Cargo?', opts: ['En src/tests.rs', 'En la carpeta tests/ en la raíz; cada archivo es un crate que usa tu API pública', 'En Cargo.toml', 'No existen en Rust'], a: 1 }
-      ] },
-      { id: 'rs-15', title: 'Examen final de Rust', cert: true, sub: 'Validación de la ruta', steps: [
-        { t: 'mcq', q: '¿Qué imprime?<pre class="code">let mut v = vec![1, 2, 3];\nfor x in &amp;mut v { *x += 10; }\nprintln!("{:?}", v);</pre>', opts: ['[1, 2, 3]', '[11, 12, 13]', 'No compila', '[10, 10, 10]'], a: 1 },
-        { t: 'clickline', q: '¿Qué línea no compila?', code: 'let s = String::from("hola");\nlet t = &s;\nlet u = s;\nprintln!("{t}");', a: 2, why: 'No puedes mover <code>s</code> mientras el préstamo <code>t</code> sigue vivo (se usa en la línea 4).' },
-        { t: 'mcq', q: 'Necesitas varios dueños de un nodo de un grafo en <b>un solo hilo</b> y poder mutarlo:', opts: ['Box&lt;T&gt;', 'Rc&lt;RefCell&lt;T&gt;&gt;', 'Arc&lt;Mutex&lt;T&gt;&gt;', '&amp;mut T'], a: 1, why: 'Rc = varios dueños (un hilo); RefCell = mutabilidad interior comprobada en ejecución. En multihilo: Arc&lt;Mutex&lt;T&gt;&gt;.' },
-        { t: 'mcq', q: '¿Cuál es el tipo de <code>"hola"</code>?', opts: ['String', '&amp;\'static str', 'char[]', 'Box&lt;str&gt;'], a: 1 },
-        { t: 'mcq', q: 'Para errores en una <b>librería</b> que otros usarán:', opts: ['anyhow::Error', 'Un enum de error propio (p. ej. con thiserror)', 'panic!', 'String'], a: 1, why: 'Los usuarios de tu librería necesitan poder hacer match sobre las causas. anyhow es para aplicaciones.' },
-        { t: 'mcq', q: '<code>fn f(x: impl Iterator&lt;Item = u32&gt;)</code> es azúcar sintáctico de…', opts: ['Despacho dinámico', 'Un genérico con trait bound: fn f&lt;I: Iterator&lt;Item = u32&gt;&gt;(x: I)', 'Una macro', 'Un Box'], a: 1 },
-        { t: 'mcq', q: '¿Qué garantiza un bloque <code>unsafe</code>?', opts: ['Que el código es inseguro y fallará', 'Nada automáticamente: tú prometes mantener las invariantes que el compilador no puede comprobar (punteros crudos, FFI…)', 'Que se desactiva el borrow checker en todo el archivo', 'Mayor velocidad'], a: 1, why: 'El borrow checker sigue activo dentro de unsafe; solo se habilitan 5 superpoderes concretos.' },
-        { t: 'mcq', q: 'Un <code>async fn</code> que nunca se <code>.await</code>a…', opts: ['Se ejecuta en segundo plano', 'No hace nada: los futuros son perezosos', 'Lanza un hilo', 'Da pánico'], a: 1 }
-      ] }
-    ] }
-  ]
-});
+    ]
+  });
+})();
