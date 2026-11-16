@@ -7,6 +7,8 @@ App de aprendizaje interactiva al estilo Brilliant, organizada como **build-your
 - **Construye tu propio Redis en Rust** (11): ownership y borrowing visualizados; proyectos rgrep, mini-redis (tokio, protocolo RESP, SET/GET con caducidad) y emulador CHIP-8. Código compilado y con tests.
 - **Construye tu propio lenguaje en Python** (11): lexer, AST con dataclasses, parser recursivo descendente, errores e intérprete con variables; pandas y FastAPI.
 
+Cada lección genera **apuntes** que crecen a medida que avanzas (botón *Apuntes* dentro de la lección) y cada ruta tiene su página de apuntes descargable en PDF (`#apuntes-sql`, `#apuntes-ia`…). Las rutas terminan con un **plan de certificación**: Kaggle (Google), Google Cloud Skills Boost, HackerRank, Hugging Face, Python Institute y Linux Foundation.
+
 Pensada para móvil: instalable (PWA), funciona sin conexión tras la primera visita y tiene barra de atajos para escribir código.
 
 ## Ejecutar en local
@@ -30,6 +32,8 @@ Render (Static Site) con `render.yaml`: publish directory `.`, sin build command
 | `app.js` | Motor de lecciones, corrección, progreso (localStorage), router |
 | `explore.js` | Reproductor de lecciones explorables y figuras (máquina de consultas, laboratorios JS/Python, neurona…) |
 | `widgets.js` | Figuras visuales (gradiente, convolución, atención, memoria Rust/Python, transacciones, índices…) |
+| `notes.js` | Apuntes por lección y vista imprimible en PDF |
+| `lessons-cert.js` | Lecciones de preparación y plan de certificación |
 | `code-library.js` | Código de proyectos y ejercicios (todo probado) |
 | `data-db.js` | Bases de datos de práctica (F1 y Películas) |
 | `course-*.js` | Contenido de cada ruta |

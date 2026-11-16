@@ -101,7 +101,7 @@
     const body = h('main', { class: 'xp' });
     app.replaceChildren(h('div', { class: 'xp-top' }, h('div', { class: 'in' },
       h('button', { class: 'x', 'aria-label': 'Salir', html: ICON.x, onclick: () => go(c.id) }),
-      h('div', { class: 't' }, h('small', {}, c.title), h('b', {}, l.title))),
+      h('div', { class: 't' }, h('small', {}, c.title), h('b', {}, l.title)), window.NOTES ? NOTES.button(l) : ''),
       h('div', { class: 'xp-prog' }, prog)), body);
     window.scrollTo({ top: 0 });
     const upd = () => prog.style.width = (100 * shown / secs.length) + '%';
@@ -124,6 +124,7 @@
       };
       const end = () => {
         if (ended) return; ended = true;
+        window.NOTES && NOTES.reach(l.id, i + 1);
         if (s.aha) sec.insertBefore(h('div', { class: 'xp-aha', html: '<b>La idea</b>' + s.aha }), next);
         next.replaceChildren(h('button', { class: 'btn', onclick: goOn }, i + 1 < secs.length ? 'Seguir' : 'Terminar lección'));
       };
@@ -163,6 +164,7 @@
     }
     function finish() {
       N.S.done[l.id] = true; if (!N.S.days.includes(N.today())) N.S.days.push(N.today()); N.save();
+      window.NOTES && NOTES.reach(l.id, secs.length);
       prog.style.width = '100%';
       const ls = N.allLessons(c); const nx = ls.slice(ls.findIndex(x => x.id === l.id) + 1).find(x => !N.S.done[x.id]);
       body.append(h('section', { class: 'xp-sec' },
@@ -170,6 +172,7 @@
         h('div', { class: 'xp-key' }, h('ul', {}, (l.keys || []).map(k => h('li', { html: k })))),
         h('div', { class: 'xp-next', style: 'gap:10px;flex-wrap:wrap' },
           h('button', { class: 'btn ghost', onclick: () => go(c.id) }, 'Volver a la ruta'),
+          h('button', { class: 'btn ghost', onclick: () => go('apuntes-' + c.id) }, 'Apuntes del curso'),
           nx ? h('button', { class: 'btn', onclick: () => go(nx.id) }, 'Siguiente: ' + nx.title) : null)));
       setTimeout(() => body.lastChild.scrollIntoView({ behavior: 'smooth', block: 'start' }), 60);
     }

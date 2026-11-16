@@ -105,7 +105,7 @@
     PY.py.setStdout({ batched: s => out += s + '\n' });
     PY.py.setStderr({ batched: () => {} });
     if (!PY.warnOff) { await PY.py.runPythonAsync('import warnings\nwarnings.filterwarnings("ignore")'); PY.warnOff = true; }
-    try { if (/^\s*(import|from)\s+(numpy|pandas)/m.test(code)) await PY.py.loadPackagesFromImports(code); await PY.py.runPythonAsync(code); return { out }; }
+    try { if (/^\s*(import|from)\s+(numpy|pandas|sklearn)/m.test(code)) await PY.py.loadPackagesFromImports(code); await PY.py.runPythonAsync(code); return { out }; }
     catch (e) { const m = String(e.message || e).split('\n').filter(Boolean); return { out, err: m.slice(-3).join('\n') }; }
   };
 
@@ -178,6 +178,10 @@
             h('span', { html: `<svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="${R}" fill="none" stroke="var(--line)" stroke-width="7"/><circle cx="32" cy="32" r="${R}" fill="none" stroke="var(--c)" stroke-width="7" stroke-linecap="round" stroke-dasharray="${L * p / 100} ${L}" transform="rotate(-90 32 32)"/><text x="32" y="37" text-anchor="middle" font-size="14" font-weight="700" fill="var(--ink)" font-family="Figtree, system-ui, sans-serif">${p}%</text></svg>` }),
             h('div', { style: 'flex:1' }, h('b', {}, `${ls.filter(l => S.done[l.id]).length} de ${ls.length} lecciones`), h('div', { style: 'color:var(--muted);font-size:14px' }, c.time || '')),
               h('button', { class: 'btn ghost sm mobinfo', onclick: e => { const s = $('#side'); s.classList.toggle('open'); e.target.textContent = s.classList.contains('open') ? 'Menos' : 'Detalles'; } }, 'Detalles'))),
+          window.NOTES ? (() => { const tot = ls.reduce((s, l) => s + NOTES.total(l), 0), got = ls.reduce((s, l) => s + NOTES.reached(l.id), 0); return h('div', { class: 'card', style: 'display:block' },
+            h('h3', {}, 'Tus apuntes'), h('p', { style: 'margin:0 0 10px;font-size:14px;color:var(--muted)' }, got ? `Crecen contigo: ${got} de ${tot} secciones estudiadas.${got >= tot ? ' Ya tienes el PDF completo.' : ''}` : 'Se irán escribiendo a medida que avances. Al final, descárgalos en PDF.'),
+            h('button', { class: 'btn sm', onclick: () => go('apuntes-' + c.id) }, got >= tot ? 'Ver y descargar PDF' : 'Ver apuntes')); })() : '',
+          c.certs ? h('div', { class: 'card' }, h('h3', {}, 'Certifícate después'), h('ul', { style: 'list-style:none;padding:0;margin:0;display:grid;gap:10px' }, c.certs.map(x => h('li', { style: 'font-size:14px;color:var(--muted)' }, h('a', { href: x.url, target: '_blank', rel: 'noopener', style: 'font-weight:700;color:var(--ink)' }, x.name), h('div', {}, `${x.org} · ${x.cost} · ${x.time}`)))), h('p', { style: 'margin:10px 0 0;font-size:13px;color:var(--muted)' }, 'La última lección de la ruta te prepara para cada una.')) : '',
           h('div', { class: 'card' }, h('h3', {}, 'Qué construirás'), h('ul', {}, c.builds.map(b => h('li', { html: b })))),
           h('div', { class: 'card cert' + (allDone ? ' on' : '') }, h('h3', {}, allDone ? 'Ruta completada' : 'Validación'),
             h('p', { style: 'margin:0;font-size:14px;color:var(--muted)', html: allDone ? c.certDone : c.cert })),
@@ -428,6 +432,7 @@
   function route() {
     const id = location.hash.slice(1);
     if (!id) return home();
+    if (id.startsWith('apuntes-') && window.NOTES) { const cc = course(id.slice(8)); if (cc) return NOTES.view(cc); }
     const c = course(id); if (c) return courseView(c);
     const f = findLesson(id); if (f) return lessonView(f);
     home();
